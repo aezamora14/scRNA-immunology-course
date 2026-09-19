@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 640" width="100%" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13" fill="#222" role="img">
+<rect width="880" height="640" fill="#fff"/>
+<defs>
+<marker id="ah-222" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#222"/></marker>
+</defs>
+<text x="20" y="28" font-size="16" text-anchor="start" fill="#222" font-weight="700" >Reading loadings: what does each PC 'mean'?</text>
+<text x="20" y="65" font-size="13" text-anchor="start" fill="#222" font-weight="600" >PC1</text>
+<line x1="200" y1="75" x2="200" y2="275" stroke="#222"/>
+<rect x="200" y="79" width="124.0" height="14" rx="0" fill="#e76f51" stroke="#fff" stroke-width="1"/>
+<text x="329.0" y="90" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >LYZ</text>
+<rect x="200" y="99" width="115.99999999999999" height="14" rx="0" fill="#e76f51" stroke="#fff" stroke-width="1"/>
+<text x="321.0" y="110" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >S100A8</text>
+<rect x="200" y="119" width="112.00000000000001" height="14" rx="0" fill="#e76f51" stroke="#fff" stroke-width="1"/>
+<text x="317.0" y="130" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >S100A9</text>
+<rect x="200" y="139" width="100.0" height="14" rx="0" fill="#e76f51" stroke="#fff" stroke-width="1"/>
+<text x="305.0" y="150" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >CST3</text>
+<rect x="200" y="159" width="88.0" height="14" rx="0" fill="#e76f51" stroke="#fff" stroke-width="1"/>
+<text x="293.0" y="170" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >FCN1</text>
+<rect x="104.0" y="179" width="96.0" height="14" rx="0" fill="#2a6ec8" stroke="#fff" stroke-width="1"/>
+<text x="99.0" y="190" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >CD3E</text>
+<rect x="112.0" y="199" width="88.0" height="14" rx="0" fill="#2a6ec8" stroke="#fff" stroke-width="1"/>
+<text x="107.0" y="210" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >IL7R</text>
+<rect x="116.0" y="219" width="84.0" height="14" rx="0" fill="#2a6ec8" stroke="#fff" stroke-width="1"/>
+<text x="111.0" y="230" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >CD3D</text>
+<rect x="120.0" y="239" width="80.0" height="14" rx="0" fill="#2a6ec8" stroke="#fff" stroke-width="1"/>
+<text x="115.0" y="250" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >LTB</text>
+<rect x="132.0" y="259" width="68.0" height="14" rx="0" fill="#2a6ec8" stroke="#fff" stroke-width="1"/>
+<text x="127.0" y="270" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >CCR7</text>
+<text x="20" y="295" font-size="12" text-anchor="start" fill="#222" font-weight="600" >Biology: myeloid (+) vs lymphoid (−). Keep.</text>
+<text x="20" y="330" font-size="13" text-anchor="start" fill="#222" font-weight="600" >PC9</text>
+<line x1="200" y1="340" x2="200" y2="540" stroke="#222"/>
+<rect x="200" y="344" width="120.0" height="14" rx="0" fill="#999" stroke="#fff" stroke-width="1"/>
+<text x="325.0" y="355" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >MT-CO1</text>
+<rect x="200" y="364" width="108.0" height="14" rx="0" fill="#999" stroke="#fff" stroke-width="1"/>
+<text x="313.0" y="375" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >MT-ND4</text>
+<rect x="200" y="384" width="100.0" height="14" rx="0" fill="#999" stroke="#fff" stroke-width="1"/>
+<text x="305.0" y="395" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >MT-CO3</text>
+<rect x="200" y="404" width="88.0" height="14" rx="0" fill="#999" stroke="#fff" stroke-width="1"/>
+<text x="293.0" y="415" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >MALAT1</text>
+<rect x="200" y="424" width="76.0" height="14" rx="0" fill="#999" stroke="#fff" stroke-width="1"/>
+<text x="281.0" y="435" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >HSPA1A</text>
+<rect x="116.0" y="444" width="84.0" height="14" rx="0" fill="#bbb" stroke="#fff" stroke-width="1"/>
+<text x="111.0" y="455" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >RPS27</text>
+<rect x="120.0" y="464" width="80.0" height="14" rx="0" fill="#bbb" stroke="#fff" stroke-width="1"/>
+<text x="115.0" y="475" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >RPL13</text>
+<rect x="124.0" y="484" width="76.0" height="14" rx="0" fill="#bbb" stroke="#fff" stroke-width="1"/>
+<text x="119.0" y="495" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >RPS6</text>
+<rect x="128.0" y="504" width="72.0" height="14" rx="0" fill="#bbb" stroke="#fff" stroke-width="1"/>
+<text x="123.0" y="515" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >RPL10</text>
+<rect x="136.0" y="524" width="64.0" height="14" rx="0" fill="#bbb" stroke="#fff" stroke-width="1"/>
+<text x="131.0" y="535" font-size="11" text-anchor="end" fill="#222" font-weight="normal" >EEF1A1</text>
+<text x="20" y="560" font-size="12" text-anchor="start" fill="#b23" font-weight="600" >Technical: mitochondrial/stress (+) vs ribosomal (−) — cell quality, not identity. Consider regressing out or dropping.</text>
+<text x="20" y="610" font-size="11" text-anchor="start" fill="#666" font-weight="normal" >Every PC is a weighted sum of genes. Positive and negative genes pull cells in opposite directions along that axis; the sign itself is arbitrary.</text>
+
+</svg>

@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 630" width="100%" font-family="Inter, Helvetica, Arial, sans-serif" font-size="12" fill="#222" role="img">
+<rect width="900" height="630" fill="#fff"/>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#666"/></marker><marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#222"/></marker></defs>
+<text x="20" y="26" font-size="16" text-anchor="start" fill="#222" font-weight="700" >From one pool of barcoded cDNA to two libraries</text>
+<text x="20" y="44" font-size="11" text-anchor="start" fill="#666" font-weight="normal" >After RT, the droplets are broken and all cDNA is amplified together. The pool is then split: one aliquot becomes the GEX library, one the V(D)J library.</text>
+<text x="20" y="78" font-size="12" text-anchor="start" fill="#222" font-weight="600" >5′ chemistry cDNA of a TCR transcript</text>
+<rect x="60" y="93.0" width="50" height="14" rx="4" fill="#263238"/>
+<text x="85.0" y="104" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >Read 1</text>
+<rect x="112" y="93.0" width="48" height="14" rx="4" fill="#7cb342"/>
+<text x="136.0" y="104" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >Barcode</text>
+<rect x="162" y="93.0" width="32" height="14" rx="4" fill="#e76f51"/>
+<text x="178.0" y="104" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >UMI</text>
+<rect x="196" y="93.0" width="36" height="14" rx="4" fill="#26a69a"/>
+<text x="214.0" y="104" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >TSO</text>
+<rect x="234" y="93.0" width="30" height="14" rx="4" fill="#cfd8dc"/>
+<text x="249.0" y="104" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >L</text>
+<rect x="266" y="93.0" width="120" height="14" rx="4" fill="#2a6ec8"/>
+<text x="326.0" y="104" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >V</text>
+<rect x="388" y="93.0" width="16" height="14" rx="4" fill="#f4a261"/>
+<text x="396.0" y="104" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >D</text>
+<rect x="406" y="93.0" width="34" height="14" rx="4" fill="#2a9d8f"/>
+<text x="423.0" y="104" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >J</text>
+<rect x="442" y="93.0" width="150" height="14" rx="4" fill="#90a4ae"/>
+<text x="517.0" y="104" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >C</text>
+<rect x="594" y="93.0" width="60" height="14" rx="4" fill="#e0e0e0"/>
+<text x="624.0" y="104" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >3′UTR</text>
+<rect x="656" y="93.0" width="36" height="14" rx="4" fill="#3f51b5"/>
+<text x="674.0" y="104" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >dT</text>
+<path d="M361,90 L361,84 L418,84 L418,90" fill="none" stroke="#c9a227" stroke-width="2"/>
+<text x="389.5" y="80" font-size="10" text-anchor="middle" fill="#c9a227" font-weight="700" >CDR3</text>
+<line x1="200" y1="112" x2="200" y2="160" stroke="#666" stroke-width="2" marker-end="url(#ah)"/>
+<text x="20" y="152" font-size="12" text-anchor="start" fill="#2a6ec8" font-weight="700" >GEX library</text>
+<text x="20" y="182" font-size="11" text-anchor="start" fill="#666" font-weight="normal" >Fragment the cDNA at random, add a second adapter, sequence.</text>
+<rect x="60" y="195.0" width="50" height="14" rx="4" fill="#263238"/>
+<text x="85.0" y="206" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >Read 1</text>
+<rect x="112" y="195.0" width="48" height="14" rx="4" fill="#7cb342"/>
+<text x="136.0" y="206" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >Barcode</text>
+<rect x="162" y="195.0" width="32" height="14" rx="4" fill="#e76f51"/>
+<text x="178.0" y="206" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >UMI</text>
+<rect x="196" y="195.0" width="36" height="14" rx="4" fill="#26a69a"/>
+<text x="214.0" y="206" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >TSO</text>
+<rect x="234" y="195.0" width="70" height="14" rx="4" fill="#2a6ec8"/>
+<text x="269.0" y="206" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >~90 nt</text>
+<line x1="60" y1="222" x2="304" y2="222" stroke="#222" stroke-width="1.5" marker-end="url(#ahk)"/>
+<text x="60" y="236" font-size="10" text-anchor="start" fill="#666" font-weight="normal" >Read 1: barcode + UMI   ·   Read 2: a short piece of the transcript, mapped to a gene</text>
+<text x="20" y="258" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >Output: UMI counts per gene per cell. The TCR gene is counted (TRAC, TRBC1) but only ~90 nt of it is ever read.</text>
+<text x="20" y="287" font-size="12" text-anchor="start" fill="#2a9d8f" font-weight="700" >V(D)J library</text>
+<text x="20" y="309" font-size="11" text-anchor="start" fill="#666" font-weight="normal" >Two rounds of nested PCR: a forward primer on Read 1 and reverse primers at the start of the C region.</text>
+<rect x="60" y="348.0" width="50" height="14" rx="4" fill="#263238"/>
+<text x="85.0" y="359" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >Read 1</text>
+<rect x="112" y="348.0" width="48" height="14" rx="4" fill="#7cb342"/>
+<text x="136.0" y="359" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >Barcode</text>
+<rect x="162" y="348.0" width="32" height="14" rx="4" fill="#e76f51"/>
+<text x="178.0" y="359" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >UMI</text>
+<rect x="196" y="348.0" width="36" height="14" rx="4" fill="#26a69a"/>
+<text x="214.0" y="359" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >TSO</text>
+<rect x="234" y="348.0" width="30" height="14" rx="4" fill="#cfd8dc"/>
+<text x="249.0" y="359" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >L</text>
+<rect x="266" y="348.0" width="120" height="14" rx="4" fill="#2a6ec8"/>
+<text x="326.0" y="359" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >V</text>
+<rect x="388" y="348.0" width="16" height="14" rx="4" fill="#f4a261"/>
+<text x="396.0" y="359" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >D</text>
+<rect x="406" y="348.0" width="34" height="14" rx="4" fill="#2a9d8f"/>
+<text x="423.0" y="359" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >J</text>
+<rect x="442" y="348.0" width="150" height="14" rx="4" fill="#90a4ae"/>
+<text x="517.0" y="359" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >C</text>
+<rect x="594" y="348.0" width="60" height="14" rx="4" fill="#e0e0e0"/>
+<text x="624.0" y="359" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >3′UTR</text>
+<rect x="656" y="348.0" width="36" height="14" rx="4" fill="#3f51b5"/>
+<text x="674.0" y="359" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >dT</text>
+<path d="M361,345 L361,339 L418,339 L418,345" fill="none" stroke="#c9a227" stroke-width="2"/>
+<text x="389.5" y="335" font-size="10" text-anchor="middle" fill="#c9a227" font-weight="700" >CDR3</text>
+<rect x="60" y="343" width="422" height="24" fill="#2a9d8f" opacity="0.18" rx="4"/>
+<line x1="60" y1="379" x2="110" y2="379" stroke="#222" stroke-width="2" marker-end="url(#ahk)"/><text x="62" y="393" font-size="9" text-anchor="start" fill="#222" font-weight="700" >Read 1 primer →</text>
+<line x1="502" y1="379" x2="452" y2="379" stroke="#222" stroke-width="2" marker-end="url(#ahk)"/><text x="504" y="393" font-size="9" text-anchor="start" fill="#222" font-weight="700" >← C-region primer</text>
+<text x="271.0" y="411" font-size="10" text-anchor="middle" fill="#2a9d8f" font-weight="700" >amplicon: barcode → leader → V → CDR3 → J → start of C</text>
+<text x="20" y="435" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >Amplicons are fragmented and sequenced; Cell Ranger stitches every read carrying the same barcode + UMI into a full contig,</text>
+<text x="20" y="450" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >then calls the V and J genes and the CDR3 nucleotide and amino-acid sequence. Output: one row per chain per cell.</text>
+<line x1="20" y1="457" x2="880" y2="457" stroke="#ddd"/>
+<text x="20" y="479" font-size="12" text-anchor="start" fill="#b23" font-weight="700" >The same PCR on a 3′ chemistry cDNA</text>
+<rect x="60" y="508.0" width="50" height="14" rx="4" fill="#263238"/>
+<text x="85.0" y="519" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >Read 1</text>
+<rect x="112" y="508.0" width="48" height="14" rx="4" fill="#7cb342"/>
+<text x="136.0" y="519" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >Barcode</text>
+<rect x="162" y="508.0" width="32" height="14" rx="4" fill="#e76f51"/>
+<text x="178.0" y="519" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >UMI</text>
+<rect x="196" y="508.0" width="36" height="14" rx="4" fill="#3f51b5"/>
+<text x="214.0" y="519" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >dT</text>
+<rect x="234" y="508.0" width="60" height="14" rx="4" fill="#e0e0e0"/>
+<text x="264.0" y="519" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >3′UTR</text>
+<rect x="296" y="508.0" width="150" height="14" rx="4" fill="#90a4ae"/>
+<text x="371.0" y="519" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >C</text>
+<rect x="448" y="508.0" width="34" height="14" rx="4" fill="#2a9d8f"/>
+<text x="465.0" y="519" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >J</text>
+<rect x="484" y="508.0" width="16" height="14" rx="4" fill="#f4a261"/>
+<text x="492.0" y="519" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >D</text>
+<rect x="502" y="508.0" width="120" height="14" rx="4" fill="#2a6ec8"/>
+<text x="562.0" y="519" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >V</text>
+<rect x="624" y="508.0" width="30" height="14" rx="4" fill="#cfd8dc"/>
+<text x="639.0" y="519" font-size="10" text-anchor="middle" fill="#222" font-weight="700" >L</text>
+<rect x="656" y="508.0" width="36" height="14" rx="4" fill="#26a69a"/>
+<text x="674.0" y="519" font-size="10" text-anchor="middle" fill="#fff" font-weight="700" >TSO</text>
+<path d="M458,505 L458,499 L527,499 L527,505" fill="none" stroke="#c9a227" stroke-width="2"/>
+<text x="492.5" y="495" font-size="10" text-anchor="middle" fill="#c9a227" font-weight="700" >CDR3</text>
+<rect x="60" y="503" width="374" height="24" fill="#b23" opacity="0.15" rx="4"/>
+<line x1="60" y1="539" x2="110" y2="539" stroke="#222" stroke-width="2" marker-end="url(#ahk)"/><text x="62" y="553" font-size="9" text-anchor="start" fill="#222" font-weight="700" >Read 1 primer →</text>
+<line x1="434" y1="539" x2="384" y2="539" stroke="#222" stroke-width="2" marker-end="url(#ahk)"/><text x="438" y="553" font-size="9" text-anchor="start" fill="#222" font-weight="700" >← C-region primer (same primer, same place in C)</text>
+<text x="60" y="571" font-size="10" text-anchor="start" fill="#b23" font-weight="700" >amplicon: barcode → 3′UTR → C, and it stops there</text>
+<text x="20" y="595" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >The primer still faces the barcode, but now the CDR3 lies on the far side of it. Every amplicon ends at the primer, so no amplicon ever</text>
+<text x="20" y="610" font-size="11" text-anchor="start" fill="#222" font-weight="normal" >contains the CDR3. No primer design fixes this: the barcode is simply at the wrong end of the molecule.</text>
+</svg>

@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>6&nbsp; Multi-sample Analysis and Capstone – Single-Cell RNA-seq and TCR-seq for Immunologists</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../appendix/setup.html" rel="next">
+<link href="../chapters/05-tcr-repertoire.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-a7c133dbdb681b9925f99f0a4dd72014.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-d61a377e5207762d35dd0696b58d29ac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-a7c133dbdb681b9925f99f0a4dd72014.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-from-cells-to-counts.html">Weekly Sessions</a></li><li class="breadcrumb-item"><a href="../chapters/06-multisample-and-capstone.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Multi-sample Analysis and Capstone</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Single-Cell RNA-seq and TCR-seq for Immunologists</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/aezamora14/scRNA-immunology-course" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Weekly Sessions</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-from-cells-to-counts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">From Cells to Counts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-normalization-and-pca.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Normalization and Principal Components</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-neighbors-clustering-umap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Neighbours, Clustering and UMAP</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-annotation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Annotation: From Clusters to Immune Cell States</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-tcr-repertoire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">TCR Repertoire Analysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-multisample-and-capstone.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Multi-sample Analysis and Capstone</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendix/setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendix/glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Glossary</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendix/further-reading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Further Reading</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#concepts" id="toc-concepts" class="nav-link active" data-scroll-target="#concepts"><span class="header-section-number">6.1</span> Concepts</a>
+  <ul class="collapse">
+  <li><a href="#batch-effects" id="toc-batch-effects" class="nav-link" data-scroll-target="#batch-effects"><span class="header-section-number">6.1.1</span> Batch effects</a></li>
+  <li><a href="#integration-methods" id="toc-integration-methods" class="nav-link" data-scroll-target="#integration-methods"><span class="header-section-number">6.1.2</span> Integration methods</a></li>
+  <li><a href="#differential-expression-between-conditions-pseudobulk" id="toc-differential-expression-between-conditions-pseudobulk" class="nav-link" data-scroll-target="#differential-expression-between-conditions-pseudobulk"><span class="header-section-number">6.1.3</span> Differential expression between conditions: pseudobulk</a></li>
+  <li><a href="#compositional-changes" id="toc-compositional-changes" class="nav-link" data-scroll-target="#compositional-changes"><span class="header-section-number">6.1.4</span> Compositional changes</a></li>
+  <li><a href="#tracking-clonotypes-across-samples" id="toc-tracking-clonotypes-across-samples" class="nav-link" data-scroll-target="#tracking-clonotypes-across-samples"><span class="header-section-number">6.1.5</span> Tracking clonotypes across samples</a></li>
+  </ul></li>
+  <li><a href="#hands-on" id="toc-hands-on" class="nav-link" data-scroll-target="#hands-on"><span class="header-section-number">6.2</span> Hands-on</a>
+  <ul class="collapse">
+  <li><a href="#merge-and-inspect-before-integrating" id="toc-merge-and-inspect-before-integrating" class="nav-link" data-scroll-target="#merge-and-inspect-before-integrating"><span class="header-section-number">6.2.1</span> Merge and inspect before integrating</a></li>
+  <li><a href="#integrate" id="toc-integrate" class="nav-link" data-scroll-target="#integrate"><span class="header-section-number">6.2.2</span> Integrate</a></li>
+  <li><a href="#annotate-the-integrated-object" id="toc-annotate-the-integrated-object" class="nav-link" data-scroll-target="#annotate-the-integrated-object"><span class="header-section-number">6.2.3</span> Annotate the integrated object</a></li>
+  <li><a href="#pseudobulk-differential-expression" id="toc-pseudobulk-differential-expression" class="nav-link" data-scroll-target="#pseudobulk-differential-expression"><span class="header-section-number">6.2.4</span> Pseudobulk differential expression</a></li>
+  <li><a href="#compositional-analysis" id="toc-compositional-analysis" class="nav-link" data-scroll-target="#compositional-analysis"><span class="header-section-number">6.2.5</span> Compositional analysis</a></li>
+  <li><a href="#track-clonotypes-across-samples" id="toc-track-clonotypes-across-samples" class="nav-link" data-scroll-target="#track-clonotypes-across-samples"><span class="header-section-number">6.2.6</span> Track clonotypes across samples</a></li>
+  </ul></li>
+  <li><a href="#pitfalls" id="toc-pitfalls" class="nav-link" data-scroll-target="#pitfalls"><span class="header-section-number">6.3</span> Pitfalls</a></li>
+  <li><a href="#capstone-project" id="toc-capstone-project" class="nav-link" data-scroll-target="#capstone-project"><span class="header-section-number">6.4</span> Capstone project</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/aezamora14/scRNA-immunology-course/edit/main/chapters/06-multisample-and-capstone.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/aezamora14/scRNA-immunology-course/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-from-cells-to-counts.html">Weekly Sessions</a></li><li class="breadcrumb-item"><a href="../chapters/06-multisample-and-capstone.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Multi-sample Analysis and Capstone</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-multisample" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Multi-sample Analysis and Capstone</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="objectives">
+<p><strong>Learning objectives</strong></p>
+<ul>
+<li>Distinguish batch effects from biological differences and decide when integration is needed</li>
+<li>Explain what Harmony, anchor-based (CCA/RPCA) and scVI integration each do to the data</li>
+<li>Perform differential expression between conditions with pseudobulk methods and explain pseudoreplication</li>
+<li>Test compositional changes and track clonotypes across samples or timepoints</li>
+<li>Complete an end-to-end analysis and present it</li>
+</ul>
+</div>
+<section id="concepts" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="concepts"><span class="header-section-number">6.1</span> Concepts</h2>
+<section id="batch-effects" class="level3" data-number="6.1.1">
+<h3 data-number="6.1.1" class="anchored" data-anchor-id="batch-effects"><span class="header-section-number">6.1.1</span> Batch effects</h3>
+<p>Cells processed on different days, by different hands, in different 10x lanes, or from different donors differ systematically in ways unrelated to the biology you care about. In a UMAP, the same cell type from two batches forms two islands. Left uncorrected, batch will dominate clustering and every “condition-specific cluster” will be a batch-specific cluster.</p>
+<div class="concept">
+<p><strong>Batch is confounded with biology by design in most experiments.</strong> Patients versus controls, pre- versus post-treatment, tumour versus blood: these usually arrive in different batches. No algorithm can separate a batch effect from a biological effect when they are perfectly confounded. Integration methods <em>assume</em> that the same cell types exist in every batch and align them. If a cell state truly exists only in one condition, aggressive integration will erase it. The defences are experimental (process conditions together, multiplex with hashing or genotype) and analytical (integrate conservatively, check that condition-specific populations survive, and never test DE on integrated values).</p>
+</div>
+</section>
+<section id="integration-methods" class="level3" data-number="6.1.2">
+<h3 data-number="6.1.2" class="anchored" data-anchor-id="integration-methods"><span class="header-section-number">6.1.2</span> Integration methods</h3>
+<p>All integration methods find a shared representation in which cells of the same type from different batches overlap. They differ in what they modify:</p>
+<ul>
+<li><strong>Harmony</strong> operates on the PCA embedding. It iteratively clusters cells, computes per-batch cluster centroids, and shifts each cell’s PC coordinates to remove batch-specific offsets. Fast, works on large data, and leaves expression values untouched. The corrected embedding is used for the kNN graph, clustering and UMAP.</li>
+<li><strong>Seurat anchors (CCA / RPCA)</strong> find pairs of mutually similar cells across batches (“anchors”), then use them to learn a correction. CCA is more aggressive (good when batches are very different, risks over-correction); RPCA is more conservative (good when you expect real condition differences). Seurat v5’s <code>IntegrateLayers</code> returns a corrected embedding.</li>
+<li><strong>scVI / scANVI</strong> fit a deep generative model of counts with batch as a covariate; the latent space is batch-corrected and can also denoise expression. Best for very large or highly heterogeneous datasets, at the cost of GPU time and more hyperparameters.</li>
+</ul>
+<p>Whichever you choose, assess it: cell types should mix across batches (a low batch-LISI or high batch mixing score) <em>while</em> remaining separated from each other (high cell-type silhouette). Over-correction looks like everything merged into a blob.</p>
+</section>
+<section id="differential-expression-between-conditions-pseudobulk" class="level3" data-number="6.1.3">
+<h3 data-number="6.1.3" class="anchored" data-anchor-id="differential-expression-between-conditions-pseudobulk"><span class="header-section-number">6.1.3</span> Differential expression between conditions: pseudobulk</h3>
+<p>The question “Is <code>GZMB</code> higher in effector CD8 T cells from patients than from controls?” has a sample size equal to the number of <strong>patients</strong>, not the number of cells. Ten thousand cells from three patients are three biological replicates with a great deal of within-replicate measurement.</p>
+<div class="concept">
+<p><strong>Pseudoreplication.</strong> Treating cells as independent observations inflates the sample size by orders of magnitude and produces astronomically small p-values for tiny effects, including effects driven by a single unusual donor. Every single-cell DE method that tests cell-vs-cell across conditions (Wilcoxon, MAST, single-cell t-tests) has this problem.</p>
+<p><strong>Pseudobulk</strong> fixes it by summing counts across all cells of a given type within each sample, producing one expression profile per sample per cell type. You then run bulk RNA-seq DE methods (edgeR, DESeq2, limma) with samples as the unit of replication. Benchmarks consistently show pseudobulk methods have the best false-discovery control. The requirement: at least 3, preferably more, biological replicates per condition.</p>
+</div>
+</section>
+<section id="compositional-changes" class="level3" data-number="6.1.4">
+<h3 data-number="6.1.4" class="anchored" data-anchor-id="compositional-changes"><span class="header-section-number">6.1.4</span> Compositional changes</h3>
+<p>“Are there more Tregs in patients?” is a question about proportions. Cell-type proportions within a sample are not independent (if Tregs go up, something else goes down), and they vary hugely between donors. Test at the sample level: compute per-sample proportions and use a method that handles compositional data and replicate variability (<code>propeller</code> in R, <code>scCODA</code> in Python). Do not run a chi-squared test on pooled cell counts; that suffers from pseudoreplication too.</p>
+</section>
+<section id="tracking-clonotypes-across-samples" class="level3" data-number="6.1.5">
+<h3 data-number="6.1.5" class="anchored" data-anchor-id="tracking-clonotypes-across-samples"><span class="header-section-number">6.1.5</span> Tracking clonotypes across samples</h3>
+<p>With TCR data from multiple samples of the same individual (blood and tumour, pre- and post-treatment, multiple timepoints), a clonotype becomes a lineage barcode you can follow. Questions become answerable: Did the clones that expanded after treatment exist before it? Do tumour-infiltrating clones also circulate? Did an exhausted clone’s sister cells in blood look naive or effector? Because each individual has a unique repertoire, clonotype tracking is always <strong>within-donor</strong>; overlap between donors is limited to public clones and is itself a finding.</p>
+</section>
+</section>
+<section id="hands-on" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="hands-on"><span class="header-section-number">6.2</span> Hands-on</h2>
+<p>For this chapter you need at least two samples. If you have only the single donor dataset, split it artificially by lane or randomly to practise the mechanics, but remember the biology will be null. The <a href="../appendix/setup.html">Setup appendix</a> lists suitable public multi-sample datasets.</p>
+<section id="merge-and-inspect-before-integrating" class="level3" data-number="6.2.1">
+<h3 data-number="6.2.1" class="anchored" data-anchor-id="merge-and-inspect-before-integrating"><span class="header-section-number">6.2.1</span> Merge and inspect before integrating</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">R (Seurat)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Python (Scanpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume a list of per-sample Seurat objects, each already QC'd (Week 1)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>objs <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ctrl1 =</span> <span class="fu">readRDS</span>(<span class="st">"data/processed/ctrl1_qc.rds"</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">ctrl2 =</span> <span class="fu">readRDS</span>(<span class="st">"data/processed/ctrl2_qc.rds"</span>),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">pat1  =</span> <span class="fu">readRDS</span>(<span class="st">"data/processed/pat1_qc.rds"</span>),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">pat2  =</span> <span class="fu">readRDS</span>(<span class="st">"data/processed/pat2_qc.rds"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (n <span class="cf">in</span> <span class="fu">names</span>(objs)) { objs[[n]]<span class="sc">$</span>sample <span class="ot">&lt;-</span> n; objs[[n]]<span class="sc">$</span>condition <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>, <span class="st">""</span>, n) }</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Seurat v5 keeps samples as layers within one assay</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">merge</span>(objs[[<span class="dv">1</span>]], objs[<span class="sc">-</span><span class="dv">1</span>], <span class="at">add.cell.ids =</span> <span class="fu">names</span>(objs))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">NormalizeData</span>(merged) <span class="sc">%&gt;%</span> <span class="fu">FindVariableFeatures</span>() <span class="sc">%&gt;%</span> <span class="fu">ScaleData</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">RunPCA</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">FindNeighbors</span>(merged, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>) <span class="sc">%&gt;%</span> <span class="fu">FindClusters</span>(<span class="at">resolution =</span> <span class="fl">0.5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">RunUMAP</span>(<span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>, <span class="at">reduction.name =</span> <span class="st">"umap.unintegrated"</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># How bad is the batch effect? Same cell types should overlap across samples</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(merged, <span class="at">reduction =</span> <span class="st">"umap.unintegrated"</span>, <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"sample"</span>, <span class="st">"seurat_clusters"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scanpy <span class="im">as</span> sc</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> anndata <span class="im">as</span> ad</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> [<span class="st">"ctrl1"</span>, <span class="st">"ctrl2"</span>, <span class="st">"pat1"</span>, <span class="st">"pat2"</span>]</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>adatas <span class="op">=</span> {s: sc.read_h5ad(<span class="ss">f"data/processed/</span><span class="sc">{</span>s<span class="sc">}</span><span class="ss">_qc.h5ad"</span>) <span class="cf">for</span> s <span class="kw">in</span> samples}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>adata <span class="op">=</span> ad.concat(adatas, label<span class="op">=</span><span class="st">"sample"</span>, index_unique<span class="op">=</span><span class="st">"-"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>adata.obs[<span class="st">"condition"</span>] <span class="op">=</span> adata.obs[<span class="st">"sample"</span>].<span class="bu">str</span>.replace(<span class="vs">r"</span><span class="dv">\d$</span><span class="vs">"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>adata.layers[<span class="st">"counts"</span>] <span class="op">=</span> adata.X.copy()</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>sc.pp.normalize_total(adata, target_sum<span class="op">=</span><span class="fl">1e4</span>)<span class="op">;</span> sc.pp.log1p(adata)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>sc.pp.highly_variable_genes(adata, n_top_genes<span class="op">=</span><span class="dv">2000</span>, flavor<span class="op">=</span><span class="st">"seurat_v3"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                            layer<span class="op">=</span><span class="st">"counts"</span>, batch_key<span class="op">=</span><span class="st">"sample"</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>adata.raw <span class="op">=</span> adata</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>sc.pp.scale(adata, max_value<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>sc.tl.pca(adata, n_comps<span class="op">=</span><span class="dv">50</span>, mask_var<span class="op">=</span><span class="st">"highly_variable"</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>sc.pp.neighbors(adata, n_pcs<span class="op">=</span><span class="dv">30</span>)<span class="op">;</span> sc.tl.leiden(adata, resolution<span class="op">=</span><span class="fl">0.5</span>, flavor<span class="op">=</span><span class="st">"igraph"</span>, n_iterations<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>sc.tl.umap(adata)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>adata.obsm[<span class="st">"X_umap_unintegrated"</span>] <span class="op">=</span> adata.obsm[<span class="st">"X_umap"</span>].copy()</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>sc.pl.umap(adata, color<span class="op">=</span>[<span class="st">"sample"</span>, <span class="st">"leiden"</span>], frameon<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="integrate" class="level3" data-number="6.2.2">
+<h3 data-number="6.2.2" class="anchored" data-anchor-id="integrate"><span class="header-section-number">6.2.2</span> Integrate</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">R (Seurat)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Python (Scanpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Harmony (fast, embedding-level). Requires the 'harmony' package.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">IntegrateLayers</span>(merged, <span class="at">method =</span> HarmonyIntegration,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">orig.reduction =</span> <span class="st">"pca"</span>, <span class="at">new.reduction =</span> <span class="st">"harmony"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternative: RPCA anchors, more conservative</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># merged &lt;- IntegrateLayers(merged, method = RPCAIntegration,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#                           orig.reduction = "pca", new.reduction = "integrated.rpca")</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">FindNeighbors</span>(merged, <span class="at">reduction =</span> <span class="st">"harmony"</span>, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">FindClusters</span>(<span class="at">resolution =</span> <span class="fl">0.5</span>, <span class="at">cluster.name =</span> <span class="st">"harmony_clusters"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">RunUMAP</span>(<span class="at">reduction =</span> <span class="st">"harmony"</span>, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>, <span class="at">reduction.name =</span> <span class="st">"umap.harmony"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(merged, <span class="at">reduction =</span> <span class="st">"umap.harmony"</span>, <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"sample"</span>, <span class="st">"harmony_clusters"</span>))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(merged, <span class="at">reduction =</span> <span class="st">"umap.harmony"</span>, <span class="at">split.by =</span> <span class="st">"condition"</span>, <span class="at">group.by =</span> <span class="st">"harmony_clusters"</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Rejoin layers before DE / marker finding</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">JoinLayers</span>(merged)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Harmony via harmonypy</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>sc.external.pp.harmony_integrate(adata, key<span class="op">=</span><span class="st">"sample"</span>, basis<span class="op">=</span><span class="st">"X_pca"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                                 adjusted_basis<span class="op">=</span><span class="st">"X_pca_harmony"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>sc.pp.neighbors(adata, use_rep<span class="op">=</span><span class="st">"X_pca_harmony"</span>, n_pcs<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>sc.tl.leiden(adata, resolution<span class="op">=</span><span class="fl">0.5</span>, key_added<span class="op">=</span><span class="st">"harmony_leiden"</span>, flavor<span class="op">=</span><span class="st">"igraph"</span>, n_iterations<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>sc.tl.umap(adata)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>sc.pl.umap(adata, color<span class="op">=</span>[<span class="st">"sample"</span>, <span class="st">"harmony_leiden"</span>], frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>sc.pl.umap(adata, color<span class="op">=</span><span class="st">"harmony_leiden"</span>, groups<span class="op">=</span><span class="va">None</span>, frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternative: scVI (GPU recommended)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># import scvi</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># scvi.model.SCVI.setup_anndata(adata, layer="counts", batch_key="sample")</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># model = scvi.model.SCVI(adata); model.train()</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># adata.obsm["X_scVI"] = model.get_latent_representation()</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Assess mixing: cells of one type should draw neighbours from all samples</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> NearestNeighbors</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>nn <span class="op">=</span> NearestNeighbors(n_neighbors<span class="op">=</span><span class="dv">30</span>).fit(adata.obsm[<span class="st">"X_pca_harmony"</span>][:, :<span class="dv">30</span>])</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> nn.kneighbors(return_distance<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>same_sample <span class="op">=</span> (adata.obs[<span class="st">"sample"</span>].values[idx] <span class="op">==</span> adata.obs[<span class="st">"sample"</span>].values[:, <span class="va">None</span>]).mean(<span class="dv">1</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>adata.obs[<span class="st">"frac_same_sample_nn"</span>] <span class="op">=</span> same_sample</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Expected if perfectly mixed:"</span>, (adata.obs[<span class="st">'sample'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)<span class="op">**</span><span class="dv">2</span>).<span class="bu">sum</span>())</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Observed mean:"</span>, same_sample.mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="annotate-the-integrated-object" class="level3" data-number="6.2.3">
+<h3 data-number="6.2.3" class="anchored" data-anchor-id="annotate-the-integrated-object"><span class="header-section-number">6.2.3</span> Annotate the integrated object</h3>
+<p>Reuse Week 4: marker dot plot plus reference labels, then assign <code>celltype</code>. Check specifically whether any cluster is composed of cells from one condition only; that is either the finding of the study or an under-corrected batch, and you must decide which from markers and from replicate consistency (does it appear in <em>both</em> patients?).</p>
+</section>
+<section id="pseudobulk-differential-expression" class="level3" data-number="6.2.4">
+<h3 data-number="6.2.4" class="anchored" data-anchor-id="pseudobulk-differential-expression"><span class="header-section-number">6.2.4</span> Pseudobulk differential expression</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">R (Seurat + edgeR)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">Python (decoupler + PyDESeq2)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(edgeR)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Sum raw counts per sample x cell type</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>pb <span class="ot">&lt;-</span> <span class="fu">AggregateExpression</span>(merged, <span class="at">assays =</span> <span class="st">"RNA"</span>, <span class="at">slot =</span> <span class="st">"counts"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"celltype"</span>, <span class="st">"sample"</span>), <span class="at">return.seurat =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>RNA</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(pb)   <span class="co"># e.g. "CD8 T effector_ctrl1"</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Test one cell type: effector CD8 T, patients vs controls</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ct   <span class="ot">&lt;-</span> <span class="st">"CD8 T effector"</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>keep <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="fu">paste0</span>(<span class="st">"^"</span>, ct, <span class="st">"_"</span>), <span class="fu">colnames</span>(pb))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>y    <span class="ot">&lt;-</span> <span class="fu">DGEList</span>(<span class="at">counts =</span> pb[, keep])</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>y<span class="sc">$</span>samples<span class="sc">$</span>sample    <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">".*_"</span>, <span class="st">""</span>, <span class="fu">colnames</span>(y))</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>y<span class="sc">$</span>samples<span class="sc">$</span>condition <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">sub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>, <span class="st">""</span>, y<span class="sc">$</span>samples<span class="sc">$</span>sample), <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"ctrl"</span>, <span class="st">"pat"</span>))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Require enough cells per pseudobulk to be meaningful</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>ncells <span class="ot">&lt;-</span> <span class="fu">table</span>(merged<span class="sc">$</span>celltype, merged<span class="sc">$</span>sample)[ct, y<span class="sc">$</span>samples<span class="sc">$</span>sample]</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(ncells <span class="sc">&gt;=</span> <span class="dv">20</span>))</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> y[<span class="fu">filterByExpr</span>(y, <span class="at">group =</span> y<span class="sc">$</span>samples<span class="sc">$</span>condition), , keep.lib.sizes <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">calcNormFactors</span>(y)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> condition, <span class="at">data =</span> y<span class="sc">$</span>samples)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>y   <span class="ot">&lt;-</span> <span class="fu">estimateDisp</span>(y, design)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">glmQLFit</span>(y, design)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">glmQLFTest</span>(fit, <span class="at">coef =</span> <span class="st">"conditionpat"</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="fu">topTags</span>(res, <span class="at">n =</span> <span class="dv">20</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare with the WRONG approach to see the inflation</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>wrong <span class="ot">&lt;-</span> <span class="fu">FindMarkers</span>(<span class="fu">subset</span>(merged, celltype <span class="sc">==</span> ct), <span class="at">ident.1 =</span> <span class="st">"pat"</span>, <span class="at">ident.2 =</span> <span class="st">"ctrl"</span>,</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>                     <span class="at">group.by =</span> <span class="st">"condition"</span>, <span class="at">test.use =</span> <span class="st">"wilcox"</span>)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">pseudobulk_sig =</span> <span class="fu">sum</span>(<span class="fu">topTags</span>(res, <span class="at">n =</span> <span class="cn">Inf</span>)<span class="sc">$</span>table<span class="sc">$</span>FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>),</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">wilcoxon_sig   =</span> <span class="fu">sum</span>(wrong<span class="sc">$</span>p_val_adj <span class="sc">&lt;</span> <span class="fl">0.05</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pip install decoupler pydeseq2</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> decoupler <span class="im">as</span> dc</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydeseq2.dds <span class="im">import</span> DeseqDataSet</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydeseq2.ds <span class="im">import</span> DeseqStats</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>pdata <span class="op">=</span> dc.pp.pseudobulk(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    adata, sample_col<span class="op">=</span><span class="st">"sample"</span>, groups_col<span class="op">=</span><span class="st">"celltype"</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    layer<span class="op">=</span><span class="st">"counts"</span>, mode<span class="op">=</span><span class="st">"sum"</span>, min_cells<span class="op">=</span><span class="dv">20</span>, min_counts<span class="op">=</span><span class="dv">1000</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>pdata.obs[<span class="st">"condition"</span>] <span class="op">=</span> pdata.obs[<span class="st">"sample"</span>].<span class="bu">str</span>.replace(<span class="vs">r"</span><span class="dv">\d$</span><span class="vs">"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>ct  <span class="op">=</span> <span class="st">"CD8 T effector"</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>sub <span class="op">=</span> pdata[pdata.obs[<span class="st">"celltype"</span>] <span class="op">==</span> ct].copy()</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>dc.pp.filter_by_expr(sub, group<span class="op">=</span><span class="st">"condition"</span>, min_count<span class="op">=</span><span class="dv">10</span>, min_total_count<span class="op">=</span><span class="dv">15</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>dds <span class="op">=</span> DeseqDataSet(adata<span class="op">=</span>sub, design<span class="op">=</span><span class="st">"~condition"</span>, refit_cooks<span class="op">=</span><span class="va">True</span>, quiet<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>dds.deseq2()</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>stat <span class="op">=</span> DeseqStats(dds, contrast<span class="op">=</span>[<span class="st">"condition"</span>, <span class="st">"pat"</span>, <span class="st">"ctrl"</span>], quiet<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>stat.summary()</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> stat.results_df.sort_values(<span class="st">"padj"</span>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>res.head(<span class="dv">20</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co"># The WRONG way, for comparison</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>cells <span class="op">=</span> adata[adata.obs[<span class="st">"celltype"</span>] <span class="op">==</span> ct].copy()</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>sc.tl.rank_genes_groups(cells, <span class="st">"condition"</span>, groups<span class="op">=</span>[<span class="st">"pat"</span>], reference<span class="op">=</span><span class="st">"ctrl"</span>,</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>                        method<span class="op">=</span><span class="st">"wilcoxon"</span>, use_raw<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>wrong <span class="op">=</span> sc.get.rank_genes_groups_df(cells, <span class="st">"pat"</span>)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"pseudobulk sig:"</span>, (res[<span class="st">"padj"</span>] <span class="op">&lt;</span> <span class="fl">0.05</span>).<span class="bu">sum</span>(),</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>      <span class="st">"| wilcoxon sig:"</span>, (wrong[<span class="st">"pvals_adj"</span>] <span class="op">&lt;</span> <span class="fl">0.05</span>).<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="compositional-analysis" class="level3" data-number="6.2.5">
+<h3 data-number="6.2.5" class="anchored" data-anchor-id="compositional-analysis"><span class="header-section-number">6.2.5</span> Compositional analysis</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true" href="">R (speckle / propeller)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false" href="">Python (scCODA via pertpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># BiocManager::install("speckle")</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(speckle)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>props <span class="ot">&lt;-</span> <span class="fu">propeller</span>(<span class="at">clusters =</span> merged<span class="sc">$</span>celltype, <span class="at">sample =</span> merged<span class="sc">$</span>sample,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">group =</span> merged<span class="sc">$</span>condition, <span class="at">transform =</span> <span class="st">"logit"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>props</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plotCellTypeProps</span>(<span class="at">clusters =</span> merged<span class="sc">$</span>celltype, <span class="at">sample =</span> merged<span class="sc">$</span>sample) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pip install pertpy   (scCODA is bundled)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pertpy <span class="im">as</span> pt</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>sccoda <span class="op">=</span> pt.tl.Sccoda()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>cdata  <span class="op">=</span> sccoda.load(adata, <span class="bu">type</span><span class="op">=</span><span class="st">"cell_level"</span>, generate_sample_level<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                     cell_type_identifier<span class="op">=</span><span class="st">"celltype"</span>, sample_identifier<span class="op">=</span><span class="st">"sample"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                     covariate_obs<span class="op">=</span>[<span class="st">"condition"</span>])</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>cdata  <span class="op">=</span> sccoda.prepare(cdata, formula<span class="op">=</span><span class="st">"condition"</span>, reference_cell_type<span class="op">=</span><span class="st">"automatic"</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>sccoda.run_nuts(cdata, rng_key<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>sccoda.summary(cdata)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>sccoda.credible_effects(cdata)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple per-sample proportion plot</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>prop <span class="op">=</span> pd.crosstab(adata.obs[<span class="st">"sample"</span>], adata.obs[<span class="st">"celltype"</span>], normalize<span class="op">=</span><span class="st">"index"</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>prop.plot.bar(stacked<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>), colormap<span class="op">=</span><span class="st">"tab20"</span>).legend(bbox_to_anchor<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="track-clonotypes-across-samples" class="level3" data-number="6.2.6">
+<h3 data-number="6.2.6" class="anchored" data-anchor-id="track-clonotypes-across-samples"><span class="header-section-number">6.2.6</span> Track clonotypes across samples</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true" href="">R (scRepertoire)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false" href="">Python (scirpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scRepertoire)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>contig_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ctrl1 =</span> <span class="fu">read.csv</span>(<span class="st">"data/raw/ctrl1/filtered_contig_annotations.csv"</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">pat1_blood  =</span> <span class="fu">read.csv</span>(<span class="st">"data/raw/pat1_blood/filtered_contig_annotations.csv"</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">pat1_tumour =</span> <span class="fu">read.csv</span>(<span class="st">"data/raw/pat1_tumour/filtered_contig_annotations.csv"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span> <span class="fu">combineTCR</span>(contig_list, <span class="at">samples =</span> <span class="fu">names</span>(contig_list))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Overlap between samples (within-patient overlap is the interesting one)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="fu">clonalOverlap</span>(combined, <span class="at">cloneCall =</span> <span class="st">"strict"</span>, <span class="at">method =</span> <span class="st">"morisita"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Alluvial tracking of the top clones between blood and tumour</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">clonalCompare</span>(combined, <span class="at">top.clones =</span> <span class="dv">10</span>, <span class="at">samples =</span> <span class="fu">c</span>(<span class="st">"pat1_blood"</span>, <span class="st">"pat1_tumour"</span>),</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>              <span class="at">cloneCall =</span> <span class="st">"aa"</span>, <span class="at">graph =</span> <span class="st">"alluvial"</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatter: clone frequency in blood vs tumour</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">clonalScatter</span>(combined, <span class="at">cloneCall =</span> <span class="st">"strict"</span>, <span class="at">x.axis =</span> <span class="st">"pat1_blood"</span>, <span class="at">y.axis =</span> <span class="st">"pat1_tumour"</span>,</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>              <span class="at">graph =</span> <span class="st">"proportion"</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Attach to the integrated object and ask which phenotype tumour-expanded clones</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co"># have in blood</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">combineExpression</span>(combined, merged, <span class="at">cloneCall =</span> <span class="st">"strict"</span>, <span class="at">group.by =</span> <span class="st">"sample"</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>shared <span class="ot">&lt;-</span> <span class="fu">intersect</span>(combined<span class="sc">$</span>pat1_blood<span class="sc">$</span>CTstrict, combined<span class="sc">$</span>pat1_tumour<span class="sc">$</span>CTstrict)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>merged<span class="sc">$</span>in_tumour_and_blood <span class="ot">&lt;-</span> merged<span class="sc">$</span>CTstrict <span class="sc">%in%</span> shared</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(merged<span class="sc">$</span>celltype[merged<span class="sc">$</span>in_tumour_and_blood <span class="sc">&amp;</span> merged<span class="sc">$</span>sample <span class="sc">==</span> <span class="st">"pat1_blood"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scirpy <span class="im">as</span> ir, mudata <span class="im">as</span> mu</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>airr <span class="op">=</span> ir.io.read_10x_vdj  <span class="co"># for each sample, read + concat with matching obs index</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ... assume mdata built as in Week 5, with obs "sample" and "clone_id" over all samples</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Repertoire overlap between samples</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>df, dist, link <span class="op">=</span> ir.tl.repertoire_overlap(mdata, groupby<span class="op">=</span><span class="st">"sample"</span>, target_col<span class="op">=</span><span class="st">"clone_id"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                                          inplace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>ir.pl.repertoire_overlap(mdata, groupby<span class="op">=</span><span class="st">"sample"</span>, heatmap_cats<span class="op">=</span>[<span class="st">"condition"</span>])</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Which clonotypes are shared between blood and tumour of the same patient?</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>ct <span class="op">=</span> pd.crosstab(mdata.obs[<span class="st">"airr:clone_id"</span>], mdata.obs[<span class="st">"gex:sample"</span>])</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>shared <span class="op">=</span> ct.index[(ct[<span class="st">"pat1_blood"</span>] <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;</span> (ct[<span class="st">"pat1_tumour"</span>] <span class="op">&gt;</span> <span class="dv">0</span>)]</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(shared), <span class="st">"clonotypes shared between blood and tumour"</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Phenotype of shared clones in blood versus tumour</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>sub <span class="op">=</span> mdata.obs[mdata.obs[<span class="st">"airr:clone_id"</span>].isin(shared)]</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>pd.crosstab(sub[<span class="st">"gex:sample"</span>], sub[<span class="st">"gex:celltype"</span>], normalize<span class="op">=</span><span class="st">"index"</span>).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Clonotype network coloured by sample: nodes spanning samples are shared clones</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>ir.tl.clonotype_network(mdata, min_cells<span class="op">=</span><span class="dv">2</span>, clonotype_key<span class="op">=</span><span class="st">"clone_id"</span>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>ir.pl.clonotype_network(mdata, color<span class="op">=</span><span class="st">"gex:sample"</span>, panel_size<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">7</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="pitfalls" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="pitfalls"><span class="header-section-number">6.3</span> Pitfalls</h2>
+<div class="pitfall">
+<ul>
+<li><strong>Testing DE on integrated or scaled values.</strong> Integration corrects an embedding, not the biology. Always go back to raw counts for pseudobulk.</li>
+<li><strong>Cells as replicates.</strong> Three patients are three replicates, whatever the cell count. If you have n = 1 per condition, you can describe but not test.</li>
+<li><strong>Integrating away the finding.</strong> A population present only in disease may be erased by CCA. Try a conservative method and confirm the population is absent in <em>every</em> control.</li>
+<li><strong>Confounded design.</strong> If all patients were processed on Monday and all controls on Tuesday, no method can rescue the comparison. Say so in the paper.</li>
+<li><strong>Composition tests on pooled counts.</strong> Chi-squared on the total cell table ignores donor variability.</li>
+<li><strong>Cross-donor clonotype overlap as “shared response”.</strong> Different donors have different repertoires; overlap is mostly public/invariant clones.</li>
+</ul>
+</div>
+</section>
+<section id="capstone-project" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="capstone-project"><span class="header-section-number">6.4</span> Capstone project</h2>
+<p>Choose a public multi-sample dataset with paired GEX and TCR (suggestions in the <a href="../appendix/setup.html">Setup appendix</a>) or use your own. Produce a reproducible report (Quarto, Rmarkdown or Jupyter) that:</p>
+<ol type="1">
+<li><strong>QC</strong> — states thresholds, cell counts before/after, doublet rates per lane</li>
+<li><strong>Processing</strong> — normalization method, HVG count with V(D)J exclusion, number of PCs with justification, integration method and an assessment of mixing</li>
+<li><strong>Annotation</strong> — clusters at a stated resolution, a marker dot plot, agreement with a reference, and a cell-type UMAP; T cells subclustered</li>
+<li><strong>Repertoire</strong> — clonotype definition stated, fraction of T cells assigned, expansion by cluster, depth-matched diversity, at least one clone-phenotype result</li>
+<li><strong>Comparison</strong> — one pseudobulk DE result and one compositional result across condition, each with the number of biological replicates stated; one clonotype-tracking result if samples are paired</li>
+<li><strong>One figure you would put in a paper</strong>, with a legend that would let a reader reproduce it</li>
+<li><strong>A limitations paragraph</strong>: confounding, replicate number, and which of your conclusions is a hypothesis versus a supported claim</li>
+</ol>
+<p>Presentations are 10 minutes plus 5 for questions. You will be assessed on the defensibility of your choices, not on the novelty of your findings.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Criterion</th>
+<th>Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Choices are stated and justified (thresholds, resolution, clonotype rule, DE method)</td>
+<td>35%</td>
+</tr>
+<tr class="even">
+<td>Correct handling of replication (pseudobulk, downsampled diversity, sample-level composition)</td>
+<td>25%</td>
+</tr>
+<tr class="odd">
+<td>Annotation is supported by markers and reconciled with a reference</td>
+<td>20%</td>
+</tr>
+<tr class="even">
+<td>Figures are readable and legends are complete</td>
+<td>10%</td>
+</tr>
+<tr class="odd">
+<td>Limitations are honest and specific</td>
+<td>10%</td>
+</tr>
+</tbody>
+</table>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/05-tcr-repertoire.html" class="pagination-link" aria-label="TCR Repertoire Analysis">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">TCR Repertoire Analysis</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../appendix/setup.html" class="pagination-link" aria-label="Setup">
+        <span class="nav-page-text">Setup</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/aezamora14/scRNA-immunology-course/edit/main/chapters/06-multisample-and-capstone.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/aezamora14/scRNA-immunology-course/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Annotation: From Clusters to Immune Cell States – Single-Cell RNA-seq and TCR-seq for Immunologists</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/05-tcr-repertoire.html" rel="next">
+<link href="../chapters/03-neighbors-clustering-umap.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-a7c133dbdb681b9925f99f0a4dd72014.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-d61a377e5207762d35dd0696b58d29ac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-a7c133dbdb681b9925f99f0a4dd72014.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-from-cells-to-counts.html">Weekly Sessions</a></li><li class="breadcrumb-item"><a href="../chapters/04-annotation.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Annotation: From Clusters to Immune Cell States</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Single-Cell RNA-seq and TCR-seq for Immunologists</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/aezamora14/scRNA-immunology-course" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Weekly Sessions</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-from-cells-to-counts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">From Cells to Counts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-normalization-and-pca.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Normalization and Principal Components</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-neighbors-clustering-umap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Neighbours, Clustering and UMAP</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-annotation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Annotation: From Clusters to Immune Cell States</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-tcr-repertoire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">TCR Repertoire Analysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-multisample-and-capstone.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Multi-sample Analysis and Capstone</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendix/setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendix/glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Glossary</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendix/further-reading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Further Reading</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#concepts" id="toc-concepts" class="nav-link active" data-scroll-target="#concepts"><span class="header-section-number">4.1</span> Concepts</a>
+  <ul class="collapse">
+  <li><a href="#type-versus-state" id="toc-type-versus-state" class="nav-link" data-scroll-target="#type-versus-state"><span class="header-section-number">4.1.1</span> Type versus state</a></li>
+  <li><a href="#marker-based-annotation" id="toc-marker-based-annotation" class="nav-link" data-scroll-target="#marker-based-annotation"><span class="header-section-number">4.1.2</span> Marker-based annotation</a></li>
+  <li><a href="#differential-expression-between-clusters" id="toc-differential-expression-between-clusters" class="nav-link" data-scroll-target="#differential-expression-between-clusters"><span class="header-section-number">4.1.3</span> Differential expression between clusters</a></li>
+  <li><a href="#reference-based-annotation" id="toc-reference-based-annotation" class="nav-link" data-scroll-target="#reference-based-annotation"><span class="header-section-number">4.1.4</span> Reference-based annotation</a></li>
+  <li><a href="#subclustering" id="toc-subclustering" class="nav-link" data-scroll-target="#subclustering"><span class="header-section-number">4.1.5</span> Subclustering</a></li>
+  </ul></li>
+  <li><a href="#hands-on" id="toc-hands-on" class="nav-link" data-scroll-target="#hands-on"><span class="header-section-number">4.2</span> Hands-on</a>
+  <ul class="collapse">
+  <li><a href="#first-pass-markers" id="toc-first-pass-markers" class="nav-link" data-scroll-target="#first-pass-markers"><span class="header-section-number">4.2.1</span> First-pass markers</a></li>
+  <li><a href="#cluster-markers-by-differential-expression" id="toc-cluster-markers-by-differential-expression" class="nav-link" data-scroll-target="#cluster-markers-by-differential-expression"><span class="header-section-number">4.2.2</span> Cluster markers by differential expression</a></li>
+  <li><a href="#reference-based-annotation-1" id="toc-reference-based-annotation-1" class="nav-link" data-scroll-target="#reference-based-annotation-1"><span class="header-section-number">4.2.3</span> Reference-based annotation</a></li>
+  <li><a href="#assign-your-annotation" id="toc-assign-your-annotation" class="nav-link" data-scroll-target="#assign-your-annotation"><span class="header-section-number">4.2.4</span> Assign your annotation</a></li>
+  <li><a href="#subcluster-t-cells" id="toc-subcluster-t-cells" class="nav-link" data-scroll-target="#subcluster-t-cells"><span class="header-section-number">4.2.5</span> Subcluster T cells</a></li>
+  </ul></li>
+  <li><a href="#pitfalls" id="toc-pitfalls" class="nav-link" data-scroll-target="#pitfalls"><span class="header-section-number">4.3</span> Pitfalls</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">4.4</span> Exercises</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/aezamora14/scRNA-immunology-course/edit/main/chapters/04-annotation.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/aezamora14/scRNA-immunology-course/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/01-from-cells-to-counts.html">Weekly Sessions</a></li><li class="breadcrumb-item"><a href="../chapters/04-annotation.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Annotation: From Clusters to Immune Cell States</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-annotation" class="quarto-section-identifier"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Annotation: From Clusters to Immune Cell States</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="objectives">
+<p><strong>Learning objectives</strong></p>
+<ul>
+<li>Use canonical markers and cluster-level differential expression to assign identities, and know why single-cell DE p-values after clustering are optimistic</li>
+<li>Apply reference-based annotation (Azimuth, CellTypist) and reconcile it with manual annotation</li>
+<li>Distinguish cell <em>type</em> from cell <em>state</em> and handle cycling, doublet-like and ambiguous clusters</li>
+<li>Subcluster T cells to resolve naive, memory, effector, regulatory, MAIT and γδ populations</li>
+</ul>
+</div>
+<section id="concepts" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="concepts"><span class="header-section-number">4.1</span> Concepts</h2>
+<section id="type-versus-state" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="type-versus-state"><span class="header-section-number">4.1.1</span> Type versus state</h3>
+<p>A <strong>cell type</strong> is a stable lineage identity (CD4 T cell, monocyte, B cell), set by developmental history and largely irreversible. A <strong>cell state</strong> is a reversible condition within a type (naive, activated, exhausted, cycling). Clustering does not know the difference. A cluster of cycling cells will contain CD4 T, CD8 T and NK cells that happen to be in S/G2M; an “activated” cluster may pool several lineages that share an interferon response. Annotation therefore proceeds hierarchically: first lineage, then state within lineage, often by subclustering.</p>
+</section>
+<section id="marker-based-annotation" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="marker-based-annotation"><span class="header-section-number">4.1.2</span> Marker-based annotation</h3>
+<p>The fastest route to a first-pass annotation is a panel of markers you already trust as an immunologist. The table below is a starting point for human PBMCs.</p>
+<table class="marker-table table-striped table-hover caption-top table">
+<caption>Canonical human PBMC markers</caption>
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gene(s)</th>
+<th>Population</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>CD3D</code>, <code>CD3E</code>, <code>CD3G</code></td>
+<td>T cells</td>
+<td>Also low in NK via ambient/<code>CD3E</code> transcripts</td>
+</tr>
+<tr class="even">
+<td><code>CD4</code></td>
+<td>CD4 T cells</td>
+<td>Poorly detected at the RNA level; infer CD4 as <code>CD3+ CD8A−</code></td>
+</tr>
+<tr class="odd">
+<td><code>CD8A</code>, <code>CD8B</code></td>
+<td>CD8 T cells</td>
+<td><code>CD8A</code> also on some NK and γδ</td>
+</tr>
+<tr class="even">
+<td><code>CCR7</code>, <code>SELL</code>, <code>TCF7</code>, <code>LEF1</code></td>
+<td>Naive / central memory</td>
+<td><code>CCR7</code>-high <code>IL7R</code>-high with no cytotoxic genes = naive</td>
+</tr>
+<tr class="odd">
+<td><code>IL7R</code>, <code>LTB</code>, <code>S100A4</code></td>
+<td>Memory CD4</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>GZMK</code></td>
+<td>Early/transitional effector memory CD8</td>
+<td>Precedes <code>GZMB</code> in differentiation</td>
+</tr>
+<tr class="odd">
+<td><code>GZMB</code>, <code>GZMH</code>, <code>PRF1</code>, <code>NKG7</code>, <code>FGFBP2</code>, <code>CX3CR1</code></td>
+<td>Cytotoxic effector CD8 / TEMRA</td>
+<td>Also NK</td>
+</tr>
+<tr class="even">
+<td><code>FOXP3</code>, <code>IL2RA</code>, <code>CTLA4</code>, <code>IKZF2</code>, <code>RTKN2</code></td>
+<td>Regulatory T cells</td>
+<td><code>FOXP3</code> is sparse; use the set</td>
+</tr>
+<tr class="odd">
+<td><code>TRDC</code>, <code>TRGC1</code>, <code>TRGC2</code>, <code>TRDV2</code>, <code>TRGV9</code></td>
+<td>γδ T cells</td>
+<td><code>TRDC</code> is the reliable one</td>
+</tr>
+<tr class="even">
+<td><code>SLC4A10</code>, <code>KLRB1</code>, <code>ZBTB16</code>, <code>RORC</code>, <code>TRAV1-2</code></td>
+<td>MAIT cells</td>
+<td>Confirm with <code>TRAV1-2</code> in the TCR data (Week 5)</td>
+</tr>
+<tr class="odd">
+<td><code>PDCD1</code>, <code>HAVCR2</code>, <code>LAG3</code>, <code>TIGIT</code>, <code>TOX</code>, <code>CXCL13</code>, <code>ENTPD1</code></td>
+<td>Exhausted / dysfunctional T cells</td>
+<td>Rare in blood; central in tumour</td>
+</tr>
+<tr class="even">
+<td><code>MKI67</code>, <code>TOP2A</code>, <code>STMN1</code></td>
+<td>Cycling cells</td>
+<td>A state, not a type; subcluster or score</td>
+</tr>
+<tr class="odd">
+<td><code>ISG15</code>, <code>IFI6</code>, <code>IFIT3</code>, <code>MX1</code></td>
+<td>Interferon-stimulated</td>
+<td>A state that cross-cuts lineages</td>
+</tr>
+<tr class="even">
+<td><code>GNLY</code>, <code>KLRD1</code>, <code>KLRF1</code>, <code>NCAM1</code>, <code>FCGR3A</code>, <code>TYROBP</code></td>
+<td>NK cells</td>
+<td><code>CD3−</code> distinguishes from cytotoxic CD8</td>
+</tr>
+<tr class="odd">
+<td><code>MS4A1</code>, <code>CD79A</code>, <code>CD79B</code>, <code>CD19</code></td>
+<td>B cells</td>
+<td><code>IGHD</code>/<code>TCL1A</code> naive; <code>CD27</code>/<code>IGHG*</code> memory</td>
+</tr>
+<tr class="even">
+<td><code>MZB1</code>, <code>JCHAIN</code>, <code>XBP1</code>, <code>SDC1</code>, <code>PRDM1</code></td>
+<td>Plasmablasts / plasma cells</td>
+<td>Very high UMI, high <code>percent.mt</code></td>
+</tr>
+<tr class="odd">
+<td><code>CD14</code>, <code>LYZ</code>, <code>S100A8</code>, <code>S100A9</code>, <code>VCAN</code></td>
+<td>Classical monocytes</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>FCGR3A</code>, <code>MS4A7</code>, <code>CDKN1C</code>, <code>LST1</code></td>
+<td>Non-classical monocytes</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>FCER1A</code>, <code>CD1C</code>, <code>CLEC10A</code></td>
+<td>cDC2</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>CLEC9A</code>, <code>XCR1</code>, <code>IDO1</code></td>
+<td>cDC1</td>
+<td>Rare</td>
+</tr>
+<tr class="odd">
+<td><code>LILRA4</code>, <code>IL3RA</code>, <code>CLEC4C</code>, <code>JCHAIN</code></td>
+<td>pDC</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>PPBP</code>, <code>PF4</code>, <code>GP9</code></td>
+<td>Platelets</td>
+<td>Contaminant; remove</td>
+</tr>
+<tr class="odd">
+<td><code>HBB</code>, <code>HBA1</code>, <code>HBA2</code></td>
+<td>Erythrocytes</td>
+<td>Contaminant; remove</td>
+</tr>
+</tbody>
+</table>
+<div class="immuno">
+<p><strong>Markers that betray you.</strong> <code>CD4</code> mRNA is barely detectable in CD4 T cells; you will see more <code>CD4</code> in monocytes. <code>FOXP3</code> drops out in most Tregs. <code>CD8A</code> alone does not separate CD8 T from NK or γδ. Always annotate from a <em>set</em> of markers and a <em>pattern</em> across clusters (dot plots), never from one gene in one cell.</p>
+</div>
+</section>
+<section id="differential-expression-between-clusters" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="differential-expression-between-clusters"><span class="header-section-number">4.1.3</span> Differential expression between clusters</h3>
+<p>Marker discovery tests each gene for higher expression in one cluster versus all others. The Wilcoxon rank-sum test is the default and is adequate for finding markers. Its p-values, however, are not valid inference:</p>
+<div class="concept">
+<p><strong>Double dipping.</strong> We defined clusters by finding groups of cells with different expression, then test whether their expression differs. The null hypothesis was falsified by construction. Cluster-marker p-values are useful for <em>ranking</em> genes, not for claiming a population is “significantly” different. For real inferential questions (Does exhaustion differ between responders and non-responders?) you need biological replicates and pseudobulk methods, which we cover in Week 6.</p>
+</div>
+<p>Rank markers by effect size (log fold change, fraction of cells expressing) rather than by p-value, and require that a marker be expressed in a substantial fraction of the cluster (<code>min.pct</code> / <code>pts</code>).</p>
+</section>
+<section id="reference-based-annotation" class="level3" data-number="4.1.4">
+<h3 data-number="4.1.4" class="anchored" data-anchor-id="reference-based-annotation"><span class="header-section-number">4.1.4</span> Reference-based annotation</h3>
+<p>Rather than annotating from scratch, you can transfer labels from a curated reference atlas. <strong>Azimuth</strong> (Seurat) maps your cells onto a reference PBMC atlas using anchors in a shared low-dimensional space and transfers labels at three levels of granularity, with a per-cell mapping score. <strong>CellTypist</strong> (Python) is a logistic-regression classifier trained on hundreds of thousands of curated immune cells, with models at several resolutions and a majority-voting step that smooths predictions over your own clusters.</p>
+<p>Reference annotation is fast, consistent across studies and excellent at catching things you would miss (a handful of pDCs, a CD4 CTL cluster). It fails on populations absent from the reference (disease-specific states, exhausted cells in a healthy-PBMC reference) and cannot tell you when it is wrong; the mapping score can only flag when it is <em>uncertain</em>. Treat it as a second opinion to reconcile with your manual annotation, not as ground truth.</p>
+</section>
+<section id="subclustering" class="level3" data-number="4.1.5">
+<h3 data-number="4.1.5" class="anchored" data-anchor-id="subclustering"><span class="header-section-number">4.1.5</span> Subclustering</h3>
+<p>T cell states that matter to immunologists (naive vs central memory, Treg vs activated CD4, MAIT vs effector CD8) live in a small corner of the total variance and are often merged at the global resolution. Standard practice is to subset the T cells, <strong>recompute HVGs and PCA on that subset</strong> (so the components now describe variation within T cells rather than T-vs-monocyte), and cluster again.</p>
+</section>
+</section>
+<section id="hands-on" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="hands-on"><span class="header-section-number">4.2</span> Hands-on</h2>
+<section id="first-pass-markers" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="first-pass-markers"><span class="header-section-number">4.2.1</span> First-pass markers</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">R (Seurat)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Python (Scanpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>pbmc <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/processed/03_pbmc_clustered.rds"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">Idents</span>(pbmc) <span class="ot">&lt;-</span> <span class="st">"leiden_0.8"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>markers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"CD3E"</span>,<span class="st">"CD4"</span>,<span class="st">"CD8A"</span>,<span class="st">"CCR7"</span>,<span class="st">"IL7R"</span>,<span class="st">"GZMK"</span>,<span class="st">"GZMB"</span>,<span class="st">"PRF1"</span>,<span class="st">"NKG7"</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>             <span class="st">"FOXP3"</span>,<span class="st">"IL2RA"</span>,<span class="st">"TRDC"</span>,<span class="st">"SLC4A10"</span>,<span class="st">"KLRB1"</span>,<span class="st">"MKI67"</span>,<span class="st">"GNLY"</span>,<span class="st">"KLRF1"</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>             <span class="st">"MS4A1"</span>,<span class="st">"CD79A"</span>,<span class="st">"MZB1"</span>,<span class="st">"JCHAIN"</span>,<span class="st">"CD14"</span>,<span class="st">"LYZ"</span>,<span class="st">"FCGR3A"</span>,<span class="st">"MS4A7"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>             <span class="st">"FCER1A"</span>,<span class="st">"CD1C"</span>,<span class="st">"LILRA4"</span>,<span class="st">"PPBP"</span>,<span class="st">"HBB"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(pbmc, <span class="at">features =</span> markers, <span class="at">cluster.idents =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">RotatedAxis</span>()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(pbmc, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"CD3E"</span>,<span class="st">"CD8A"</span>,<span class="st">"MS4A1"</span>,<span class="st">"LYZ"</span>,<span class="st">"GNLY"</span>,<span class="st">"FOXP3"</span>),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">order =</span> <span class="cn">TRUE</span>, <span class="at">ncol =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scanpy <span class="im">as</span> sc</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>adata <span class="op">=</span> sc.read_h5ad(<span class="st">"data/processed/03_pbmc_clustered.h5ad"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>markers <span class="op">=</span> [<span class="st">"CD3E"</span>,<span class="st">"CD4"</span>,<span class="st">"CD8A"</span>,<span class="st">"CCR7"</span>,<span class="st">"IL7R"</span>,<span class="st">"GZMK"</span>,<span class="st">"GZMB"</span>,<span class="st">"PRF1"</span>,<span class="st">"NKG7"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"FOXP3"</span>,<span class="st">"IL2RA"</span>,<span class="st">"TRDC"</span>,<span class="st">"SLC4A10"</span>,<span class="st">"KLRB1"</span>,<span class="st">"MKI67"</span>,<span class="st">"GNLY"</span>,<span class="st">"KLRF1"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"MS4A1"</span>,<span class="st">"CD79A"</span>,<span class="st">"MZB1"</span>,<span class="st">"JCHAIN"</span>,<span class="st">"CD14"</span>,<span class="st">"LYZ"</span>,<span class="st">"FCGR3A"</span>,<span class="st">"MS4A7"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>           <span class="st">"FCER1A"</span>,<span class="st">"CD1C"</span>,<span class="st">"LILRA4"</span>,<span class="st">"PPBP"</span>,<span class="st">"HBB"</span>]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># use_raw=True plots the full log-normalized matrix, not the scaled HVG subset</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>sc.pl.dotplot(adata, markers, groupby<span class="op">=</span><span class="st">"leiden_0.8"</span>, use_raw<span class="op">=</span><span class="va">True</span>, dendrogram<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>sc.pl.umap(adata, color<span class="op">=</span>[<span class="st">"CD3E"</span>,<span class="st">"CD8A"</span>,<span class="st">"MS4A1"</span>,<span class="st">"LYZ"</span>,<span class="st">"GNLY"</span>,<span class="st">"FOXP3"</span>],</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>           use_raw<span class="op">=</span><span class="va">True</span>, ncols<span class="op">=</span><span class="dv">3</span>, frameon<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="cluster-markers-by-differential-expression" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="cluster-markers-by-differential-expression"><span class="header-section-number">4.2.2</span> Cluster markers by differential expression</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">R (Seurat)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Python (Scanpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># presto makes FindAllMarkers ~10x faster; install.packages("presto") via remotes</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>all_markers <span class="ot">&lt;-</span> <span class="fu">FindAllMarkers</span>(pbmc, <span class="at">only.pos =</span> <span class="cn">TRUE</span>, <span class="at">min.pct =</span> <span class="fl">0.25</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">logfc.threshold =</span> <span class="fl">0.5</span>, <span class="at">test.use =</span> <span class="st">"wilcox"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>top5 <span class="ot">&lt;-</span> all_markers <span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cluster) <span class="sc">%&gt;%</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> avg_log2FC, <span class="at">n =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(top5, <span class="at">n =</span> <span class="cn">Inf</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">DoHeatmap</span>(<span class="fu">subset</span>(pbmc, <span class="at">downsample =</span> <span class="dv">200</span>), <span class="at">features =</span> top5<span class="sc">$</span>gene) <span class="sc">+</span> <span class="fu">NoLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sc.tl.rank_genes_groups(adata, groupby<span class="op">=</span><span class="st">"leiden_0.8"</span>, method<span class="op">=</span><span class="st">"wilcoxon"</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                        use_raw<span class="op">=</span><span class="va">True</span>, pts<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Table of the top 5 genes per cluster, filtered by effect size and % expressing</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>sc.tl.filter_rank_genes_groups(adata, min_fold_change<span class="op">=</span><span class="fl">1.5</span>, min_in_group_fraction<span class="op">=</span><span class="fl">0.25</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>sc.pl.rank_genes_groups_dotplot(adata, n_genes<span class="op">=</span><span class="dv">5</span>, key<span class="op">=</span><span class="st">"rank_genes_groups_filtered"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>top <span class="op">=</span> sc.get.rank_genes_groups_df(adata, group<span class="op">=</span><span class="va">None</span>).groupby(<span class="st">"group"</span>).head(<span class="dv">5</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(top[[<span class="st">"group"</span>, <span class="st">"names"</span>, <span class="st">"logfoldchanges"</span>, <span class="st">"pct_nz_group"</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="reference-based-annotation-1" class="level3" data-number="4.2.3">
+<h3 data-number="4.2.3" class="anchored" data-anchor-id="reference-based-annotation-1"><span class="header-section-number">4.2.3</span> Reference-based annotation</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">R (Seurat)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">Python (Scanpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Azimuth: remotes::install_github("satijalab/azimuth")</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The PBMC reference downloads automatically (~1 GB) on first use.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Azimuth)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>pbmc <span class="ot">&lt;-</span> <span class="fu">RunAzimuth</span>(pbmc, <span class="at">reference =</span> <span class="st">"pbmcref"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Labels at three granularities plus a mapping score</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pbmc<span class="sc">@</span>meta.data[, <span class="fu">c</span>(<span class="st">"predicted.celltype.l1"</span>, <span class="st">"predicted.celltype.l2"</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"predicted.celltype.l3"</span>, <span class="st">"mapping.score"</span>)])</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(pbmc, <span class="at">group.by =</span> <span class="st">"predicted.celltype.l2"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">repel =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">NoLegend</span>()</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># How do reference labels distribute across your clusters?</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(pbmc<span class="sc">$</span>leiden_0<span class="fl">.8</span>, pbmc<span class="sc">$</span>predicted.celltype.l2) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame.matrix</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  { .[, <span class="fu">colSums</span>(.) <span class="sc">&gt;</span> <span class="dv">20</span>] }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pip install celltypist</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> celltypist</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> celltypist <span class="im">import</span> models</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>models.download_models(model<span class="op">=</span>[<span class="st">"Immune_All_Low.pkl"</span>, <span class="st">"Immune_All_High.pkl"</span>])</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> models.Model.load(<span class="st">"Immune_All_Low.pkl"</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># CellTypist expects log1p(CP10k); adata.raw holds exactly that</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> celltypist.annotate(adata.raw.to_adata(), model<span class="op">=</span>model, majority_voting<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>adata.obs[<span class="st">"celltypist"</span>] <span class="op">=</span> pred.predicted_labels[<span class="st">"predicted_labels"</span>].values</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>adata.obs[<span class="st">"celltypist_mv"</span>] <span class="op">=</span> pred.predicted_labels[<span class="st">"majority_voting"</span>].values</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>adata.obs[<span class="st">"celltypist_conf"</span>] <span class="op">=</span> pred.probability_matrix.<span class="bu">max</span>(axis<span class="op">=</span><span class="dv">1</span>).values</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>sc.pl.umap(adata, color<span class="op">=</span>[<span class="st">"celltypist_mv"</span>, <span class="st">"celltypist_conf"</span>], legend_loc<span class="op">=</span><span class="st">"on data"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>           legend_fontsize<span class="op">=</span><span class="dv">7</span>, frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>pd.crosstab(adata.obs[<span class="st">"leiden_0.8"</span>], adata.obs[<span class="st">"celltypist_mv"</span>]).loc[</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    :, <span class="kw">lambda</span> d: d.<span class="bu">sum</span>() <span class="op">&gt;</span> <span class="dv">20</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="assign-your-annotation" class="level3" data-number="4.2.4">
+<h3 data-number="4.2.4" class="anchored" data-anchor-id="assign-your-annotation"><span class="header-section-number">4.2.4</span> Assign your annotation</h3>
+<p>Reconcile the dot plot, DE markers and reference labels, then commit to names. Record ambiguous cases in comments.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true" href="">R (Seurat)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false" href="">Python (Scanpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit these to match YOUR cluster numbers after inspecting the plots above</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>annotation <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"0"</span>  <span class="ot">=</span> <span class="st">"CD4 T naive"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"1"</span>  <span class="ot">=</span> <span class="st">"CD14 mono"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"2"</span>  <span class="ot">=</span> <span class="st">"CD4 T memory"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"3"</span>  <span class="ot">=</span> <span class="st">"CD8 T naive"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"4"</span>  <span class="ot">=</span> <span class="st">"NK"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"5"</span>  <span class="ot">=</span> <span class="st">"CD8 T effector"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"6"</span>  <span class="ot">=</span> <span class="st">"B naive"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"7"</span>  <span class="ot">=</span> <span class="st">"B memory"</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"8"</span>  <span class="ot">=</span> <span class="st">"CD16 mono"</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"9"</span>  <span class="ot">=</span> <span class="st">"Treg"</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"10"</span> <span class="ot">=</span> <span class="st">"MAIT"</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"11"</span> <span class="ot">=</span> <span class="st">"cDC2"</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"12"</span> <span class="ot">=</span> <span class="st">"Platelet"</span>,        <span class="co"># remove</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"13"</span> <span class="ot">=</span> <span class="st">"pDC"</span>,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"14"</span> <span class="ot">=</span> <span class="st">"Proliferating"</span>    <span class="co"># mixed lineage; resolve by subclustering</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>pbmc<span class="sc">$</span>celltype <span class="ot">&lt;-</span> <span class="fu">unname</span>(annotation[<span class="fu">as.character</span>(pbmc<span class="sc">$</span>leiden_0<span class="fl">.8</span>)])</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>pbmc <span class="ot">&lt;-</span> <span class="fu">subset</span>(pbmc, celltype <span class="sc">!=</span> <span class="st">"Platelet"</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(pbmc, <span class="at">group.by =</span> <span class="st">"celltype"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">repel =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">NoLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>annotation <span class="op">=</span> {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"0"</span>: <span class="st">"CD4 T naive"</span>, <span class="st">"1"</span>: <span class="st">"CD14 mono"</span>, <span class="st">"2"</span>: <span class="st">"CD4 T memory"</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"3"</span>: <span class="st">"CD8 T naive"</span>, <span class="st">"4"</span>: <span class="st">"NK"</span>, <span class="st">"5"</span>: <span class="st">"CD8 T effector"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"6"</span>: <span class="st">"B naive"</span>, <span class="st">"7"</span>: <span class="st">"B memory"</span>, <span class="st">"8"</span>: <span class="st">"CD16 mono"</span>, <span class="st">"9"</span>: <span class="st">"Treg"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"10"</span>: <span class="st">"MAIT"</span>, <span class="st">"11"</span>: <span class="st">"cDC2"</span>, <span class="st">"12"</span>: <span class="st">"Platelet"</span>, <span class="st">"13"</span>: <span class="st">"pDC"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"14"</span>: <span class="st">"Proliferating"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>adata.obs[<span class="st">"celltype"</span>] <span class="op">=</span> adata.obs[<span class="st">"leiden_0.8"</span>].<span class="bu">map</span>(annotation).astype(<span class="st">"category"</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>adata <span class="op">=</span> adata[adata.obs[<span class="st">"celltype"</span>] <span class="op">!=</span> <span class="st">"Platelet"</span>].copy()</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>sc.pl.umap(adata, color<span class="op">=</span><span class="st">"celltype"</span>, legend_loc<span class="op">=</span><span class="st">"on data"</span>, legend_fontsize<span class="op">=</span><span class="dv">8</span>, frameon<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="subcluster-t-cells" class="level3" data-number="4.2.5">
+<h3 data-number="4.2.5" class="anchored" data-anchor-id="subcluster-t-cells"><span class="header-section-number">4.2.5</span> Subcluster T cells</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true" href="">R (Seurat)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false" href="">Python (Scanpy)</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tcells <span class="ot">&lt;-</span> <span class="fu">subset</span>(pbmc, celltype <span class="sc">%in%</span> <span class="fu">grep</span>(<span class="st">"T |Treg|MAIT|Prolif"</span>, <span class="fu">unique</span>(pbmc<span class="sc">$</span>celltype), <span class="at">value =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Recompute everything on the subset so PCs describe T-cell-internal variation</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>tcells <span class="ot">&lt;-</span> <span class="fu">FindVariableFeatures</span>(tcells, <span class="at">nfeatures =</span> <span class="dv">2000</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">VariableFeatures</span>(tcells) <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^(TR[ABDG]V|IG[HKL]V)"</span>, <span class="fu">VariableFeatures</span>(tcells),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">invert =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>tcells <span class="ot">&lt;-</span> <span class="fu">ScaleData</span>(tcells) <span class="sc">%&gt;%</span> <span class="fu">RunPCA</span>(<span class="at">npcs =</span> <span class="dv">30</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">FindNeighbors</span>(<span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>) <span class="sc">%&gt;%</span> <span class="fu">FindClusters</span>(<span class="at">resolution =</span> <span class="fl">0.8</span>, <span class="at">algorithm =</span> <span class="dv">4</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">RunUMAP</span>(<span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>t_markers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"CCR7"</span>,<span class="st">"SELL"</span>,<span class="st">"TCF7"</span>,<span class="st">"IL7R"</span>,<span class="st">"LTB"</span>,<span class="st">"GZMK"</span>,<span class="st">"GZMB"</span>,<span class="st">"PRF1"</span>,<span class="st">"CX3CR1"</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>               <span class="st">"FOXP3"</span>,<span class="st">"IL2RA"</span>,<span class="st">"CTLA4"</span>,<span class="st">"TRDC"</span>,<span class="st">"TRGV9"</span>,<span class="st">"SLC4A10"</span>,<span class="st">"KLRB1"</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>               <span class="st">"PDCD1"</span>,<span class="st">"TIGIT"</span>,<span class="st">"MKI67"</span>,<span class="st">"ISG15"</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(tcells, <span class="at">features =</span> t_markers, <span class="at">cluster.idents =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">RotatedAxis</span>()</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(pbmc,   <span class="st">"data/processed/04_pbmc_annotated.rds"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(tcells, <span class="st">"data/processed/04_tcells.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>is_t <span class="op">=</span> adata.obs[<span class="st">"celltype"</span>].<span class="bu">str</span>.contains(<span class="st">"T |Treg|MAIT|Prolif"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>tcells <span class="op">=</span> adata[is_t].copy()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Start from log-normalized values and recompute HVGs/PCA on the subset</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>tcells <span class="op">=</span> tcells.raw.to_adata()</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>tcells.layers[<span class="st">"counts"</span>] <span class="op">=</span> adata[is_t].layers[<span class="st">"counts"</span>].copy()</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>sc.pp.highly_variable_genes(tcells, n_top_genes<span class="op">=</span><span class="dv">2000</span>, flavor<span class="op">=</span><span class="st">"seurat_v3"</span>, layer<span class="op">=</span><span class="st">"counts"</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>tcells.var.loc[tcells.var_names.<span class="bu">str</span>.match(<span class="vs">r"</span><span class="dv">^</span><span class="kw">(</span><span class="vs">TR</span><span class="pp">[ABDG]</span><span class="vs">V</span><span class="cf">|</span><span class="vs">IG</span><span class="pp">[HKL]</span><span class="vs">V</span><span class="kw">)</span><span class="vs">"</span>), <span class="st">"highly_variable"</span>] <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>tcells.raw <span class="op">=</span> tcells</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>sc.pp.scale(tcells, max_value<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>sc.tl.pca(tcells, n_comps<span class="op">=</span><span class="dv">30</span>, mask_var<span class="op">=</span><span class="st">"highly_variable"</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>sc.pp.neighbors(tcells, n_neighbors<span class="op">=</span><span class="dv">20</span>, n_pcs<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>sc.tl.leiden(tcells, resolution<span class="op">=</span><span class="fl">0.8</span>, flavor<span class="op">=</span><span class="st">"igraph"</span>, n_iterations<span class="op">=</span><span class="dv">2</span>, key_added<span class="op">=</span><span class="st">"t_leiden"</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>sc.tl.umap(tcells)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>t_markers <span class="op">=</span> [<span class="st">"CCR7"</span>,<span class="st">"SELL"</span>,<span class="st">"TCF7"</span>,<span class="st">"IL7R"</span>,<span class="st">"LTB"</span>,<span class="st">"GZMK"</span>,<span class="st">"GZMB"</span>,<span class="st">"PRF1"</span>,<span class="st">"CX3CR1"</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>             <span class="st">"FOXP3"</span>,<span class="st">"IL2RA"</span>,<span class="st">"CTLA4"</span>,<span class="st">"TRDC"</span>,<span class="st">"TRGV9"</span>,<span class="st">"SLC4A10"</span>,<span class="st">"KLRB1"</span>,</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>             <span class="st">"PDCD1"</span>,<span class="st">"TIGIT"</span>,<span class="st">"MKI67"</span>,<span class="st">"ISG15"</span>]</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>sc.pl.dotplot(tcells, t_markers, groupby<span class="op">=</span><span class="st">"t_leiden"</span>, use_raw<span class="op">=</span><span class="va">True</span>, dendrogram<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>adata.write_h5ad(<span class="st">"data/processed/04_pbmc_annotated.h5ad"</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>tcells.write_h5ad(<span class="st">"data/processed/04_tcells.h5ad"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="pitfalls" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="pitfalls"><span class="header-section-number">4.3</span> Pitfalls</h2>
+<div class="pitfall">
+<ul>
+<li><strong>Annotating from one gene.</strong> <code>CD4+</code> by mRNA misses most CD4 T cells and catches monocytes.</li>
+<li><strong>Naming every cluster as a distinct subset.</strong> Some clusters are the same population at different activation levels, or the same lineage in different cell-cycle phases.</li>
+<li><strong>Trusting reference labels blindly.</strong> A healthy-PBMC reference will label exhausted tumour T cells as “CD8 TEM”. Check mapping scores and marker expression.</li>
+<li><strong>Reporting Wilcoxon p-values as evidence.</strong> They rank markers; they do not test hypotheses about populations you defined from the same data.</li>
+<li><strong>Skipping re-computation when subclustering.</strong> Reusing global PCs on a T cell subset leaves you clustering on T-vs-myeloid noise.</li>
+<li><strong>Missing contaminants and doublets.</strong> A cluster expressing <code>CD3E</code> <em>and</em> <code>LYZ</code> <em>and</em> <code>MS4A1</code> is doublets, not a trispecific cell.</li>
+</ul>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="exercises"><span class="header-section-number">4.4</span> Exercises</h2>
+<ol type="1">
+<li>For each of your clusters, list the three markers you used to name it and one marker you expected but did <em>not</em> see. Where the reference annotation disagreed with yours, which did you trust and why?</li>
+<li>Find the cluster(s) driven by cell cycle. Split it by lineage using <code>CD3E</code>, <code>CD8A</code>, <code>MS4A1</code>, <code>LYZ</code>. What proportion is T?</li>
+<li>In the T cell subclustering, identify MAIT cells by <code>SLC4A10</code>/<code>KLRB1</code>. Keep the barcode list; in Week 5 you will check how many carry <code>TRAV1-2</code>.</li>
+<li><em>(Stretch)</em> Score each T cell for an exhaustion signature (<code>PDCD1</code>, <code>HAVCR2</code>, <code>LAG3</code>, <code>TIGIT</code>, <code>TOX</code>, <code>CTLA4</code>) and an interferon signature. Do either form a cluster, or are they distributed as gradients across existing clusters? What does that imply about calling “exhausted” a cell type in blood?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/03-neighbors-clustering-umap.html" class="pagination-link" aria-label="Neighbours, Clustering and UMAP">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Neighbours, Clustering and UMAP</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/05-tcr-repertoire.html" class="pagination-link" aria-label="TCR Repertoire Analysis">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">TCR Repertoire Analysis</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/aezamora14/scRNA-immunology-course/edit/main/chapters/04-annotation.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/aezamora14/scRNA-immunology-course/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
