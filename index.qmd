@@ -42,7 +42,7 @@ Everything here transfers directly to tumour-infiltrating lymphocytes, sorted T 
 
 ## Before Week 1
 
-Work through the [Setup appendix](appendix/setup.qmd): install R or Python with the required packages, download the data, and confirm you can load a count matrix. Setup problems are the single biggest time sink in a workshop, so please do this beforehand and open an issue on the course repository if you get stuck.
+Work through the [Setup appendix](appendix/setup.qmd): download the course folder from GitHub, install R or Python with the required packages, put the data in the folder's `data/raw/`, and confirm you can load a count matrix. Setup problems are the single biggest time sink in a workshop, so please do this beforehand and open an issue on the course repository if you get stuck.
 
 ## Reading the code tabs
 

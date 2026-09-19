@@ -77,9 +77,10 @@ To switch to executed chapters with rendered plots:
 ├── install.R                   # R package installer
 ├── environment.yml             # conda environment for Python
 ├── setup-github.sh             # one-time publish helper
+├── scRNA-immunology-course.Rproj  # opens RStudio with the right working directory
 ├── .github/workflows/publish.yml
 ├── styles.scss                 # callout styling
-└── data/                       # raw/ and processed/ (gitignored)
+└── data/                       # raw/ (student downloads) and processed/ (saved objects); contents gitignored
 ```
 
 ## License

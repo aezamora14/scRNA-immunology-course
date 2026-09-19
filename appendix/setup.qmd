@@ -13,6 +13,38 @@ You need only one. Both are fully supported in every chapter.
 - **R / Seurat** is the more common choice in immunology labs and has the richer plotting ecosystem for publication figures.
 - **Python / Scanpy** scales better to very large datasets, integrates with deep-learning tools (scVI), and scirpy's TCR handling is rigorous.
 
+## Get the course folder
+
+All code in this course uses paths like `data/raw/filtered_feature_bc_matrix.h5` and `data/processed/01_pbmc_qc.rds`. Those paths are **relative to the course folder**, which you download from GitHub. You do not create or name any folders yourself.
+
+1. Go to <https://github.com/aezamora14/scRNA-immunology-course>.
+2. Click the green **Code** button, then **Download ZIP**. (If you use git: `git clone https://github.com/aezamora14/scRNA-immunology-course.git` does the same.)
+3. Unzip it somewhere you will keep for six weeks, e.g. `Documents/scRNA-immunology-course/`. Inside you will find:
+
+```
+scRNA-immunology-course/
+├── chapters/          the six weekly sessions (the same text as this website)
+├── data/
+│   ├── raw/           ← put downloaded 10x files here
+│   └── processed/     ← the code saves intermediate objects here
+├── images/
+├── install.R
+├── environment.yml
+└── scRNA-immunology-course.Rproj
+```
+
+`data/raw/` and `data/processed/` already exist (they contain only a hidden placeholder file). Everything you download goes into `data/raw/`; everything the code saves goes into `data/processed/`. Both folders are ignored by git, so if you later push your own copy to GitHub the large data files will not be uploaded.
+
+::: {.callout-important}
+## Your working directory must be the course folder
+Relative paths only work if R or Python is running *from* the course folder.
+
+- **RStudio:** double-click `scRNA-immunology-course.Rproj`. RStudio opens with the working directory set correctly; check with `getwd()`.
+- **JupyterLab / VS Code:** open a terminal, `cd` into the course folder, then launch `jupyter lab` (or open the folder in VS Code). Check with `import os; os.getcwd()`.
+
+If you see `FileNotFoundError` or `cannot open file 'data/raw/...'`, the working directory is wrong: nine times out of ten the fix is opening the `.Rproj` or `cd`-ing into the folder first.
+:::
+
 ## Install: R
 
 Install R ≥ 4.3 from <https://cran.r-project.org> and RStudio from <https://posit.co/download/rstudio-desktop/>. Then, in R, run the course installer (the file `install.R` in the repository):
@@ -51,7 +83,7 @@ The course uses a 10x Genomics **5′ Immune Profiling** human PBMC dataset with
 
 1. Go to <https://www.10xgenomics.com/datasets> and filter by *Chromium Single Cell Immune Profiling*, species *Human*, sample type *PBMC*.
 2. Choose a dataset that lists both a **Gene Expression** and a **V(D)J T** library from the same cells (datasets processed with `cellranger multi` are ideal).
-3. Download the following into `data/raw/`:
+3. Download the following files and move them into the `data/raw/` folder inside the course folder you unzipped above:
    - `filtered_feature_bc_matrix.h5` (gene expression)
    - `raw_feature_bc_matrix.h5` (optional; for ambient-RNA correction)
    - `filtered_contig_annotations.csv` (TCR contigs)
@@ -61,9 +93,9 @@ The course uses a 10x Genomics **5′ Immune Profiling** human PBMC dataset with
 If the GEX and V(D)J files come from separate Cell Ranger runs rather than one `multi` run, confirm that the barcode suffixes match (`AAACCTGAGAAACCAT-1` in both). Barcode mismatch is the most common Week 5 error.
 :::
 
-For Week 2's optional cell-cycle scoring in Python, also download `regev_lab_cell_cycle_genes.txt` from <https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle> into `data/raw/`.
+For Week 2's optional cell-cycle scoring in Python, also download `regev_lab_cell_cycle_genes.txt` from <https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle> into the same `data/raw/` folder.
 
-For Week 5's database queries, download the latest VDJdb export from <https://vdjdb.cdr3.net> (the `vdjdb.slim.txt` file) into `data/raw/`.
+For Week 5's database queries, download the latest VDJdb export from <https://vdjdb.cdr3.net> (the `vdjdb.slim.txt` file) into `data/raw/` as well.
 
 ## Multi-sample datasets for Week 6 and the capstone
 
@@ -81,9 +113,14 @@ The instructor may replace these with a lab dataset. Substitution is seamless as
 
 ## Verify your setup
 
+Open R (via the `.Rproj`) or Python (launched from the course folder) and run the block for your language. The first line checks the working directory; if it does not end in `scRNA-immunology-course`, stop and fix that before anything else.
+
+
 ::: {.panel-tabset group="language"}
 ## R (Seurat)
 ```r
+basename(getwd())          # should print "scRNA-immunology-course"
+list.files("data/raw")     # should list the files you downloaded
 library(Seurat)
 x <- Read10X_h5("data/raw/filtered_feature_bc_matrix.h5")
 if (is.list(x)) x <- x[["Gene Expression"]]
@@ -94,6 +131,8 @@ mean(sub("-\\d+$", "", tcr$barcode) %in% sub("-\\d+$", "", colnames(x)))  # shou
 
 ## Python (Scanpy)
 ```python
+import os; print(os.path.basename(os.getcwd()))   # should print "scRNA-immunology-course"
+print(os.listdir("data/raw"))                       # should list the files you downloaded
 import scanpy as sc, pandas as pd
 a = sc.read_10x_h5("data/raw/filtered_feature_bc_matrix.h5")
 print(a.shape)   # (number of cells, roughly 36000)
