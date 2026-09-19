@@ -34,7 +34,7 @@
     "href": "index.html#before-week-1",
     "title": "Single-Cell RNA-seq and TCR-seq for Immunologists",
     "section": "Before Week 1",
-    "text": "Before Week 1\nWork through the Setup appendix: install R or Python with the required packages, download the data, and confirm you can load a count matrix. Setup problems are the single biggest time sink in a workshop, so please do this beforehand and open an issue on the course repository if you get stuck.",
+    "text": "Before Week 1\nWork through the Setup appendix: download the course folder from GitHub, install R or Python with the required packages, put the data in the folder’s data/raw/, and confirm you can load a count matrix. Setup problems are the single biggest time sink in a workshop, so please do this beforehand and open an issue on the course repository if you get stuck.",
     "crumbs": [
       "Welcome"
     ]
@@ -402,6 +402,17 @@
     ]
   },
   {
+    "objectID": "appendix/setup.html#get-the-course-folder",
+    "href": "appendix/setup.html#get-the-course-folder",
+    "title": "Setup",
+    "section": "Get the course folder",
+    "text": "Get the course folder\nAll code in this course uses paths like data/raw/filtered_feature_bc_matrix.h5 and data/processed/01_pbmc_qc.rds. Those paths are relative to the course folder, which you download from GitHub. You do not create or name any folders yourself.\n\nGo to https://github.com/aezamora14/scRNA-immunology-course.\nClick the green Code button, then Download ZIP. (If you use git: git clone https://github.com/aezamora14/scRNA-immunology-course.git does the same.)\nUnzip it somewhere you will keep for six weeks, e.g. Documents/scRNA-immunology-course/. Inside you will find:\n\nscRNA-immunology-course/\n├── chapters/          the six weekly sessions (the same text as this website)\n├── data/\n│   ├── raw/           ← put downloaded 10x files here\n│   └── processed/     ← the code saves intermediate objects here\n├── images/\n├── install.R\n├── environment.yml\n└── scRNA-immunology-course.Rproj\ndata/raw/ and data/processed/ already exist (they contain only a hidden placeholder file). Everything you download goes into data/raw/; everything the code saves goes into data/processed/. Both folders are ignored by git, so if you later push your own copy to GitHub the large data files will not be uploaded.\n\n\n\n\n\n\nImportantYour working directory must be the course folder\n\n\n\nRelative paths only work if R or Python is running from the course folder.\n\nRStudio: double-click scRNA-immunology-course.Rproj. RStudio opens with the working directory set correctly; check with getwd().\nJupyterLab / VS Code: open a terminal, cd into the course folder, then launch jupyter lab (or open the folder in VS Code). Check with import os; os.getcwd().\n\nIf you see FileNotFoundError or cannot open file 'data/raw/...', the working directory is wrong: nine times out of ten the fix is opening the .Rproj or cd-ing into the folder first.",
+    "crumbs": [
+      "Appendices",
+      "Setup"
+    ]
+  },
+  {
     "objectID": "appendix/setup.html#install-r",
     "href": "appendix/setup.html#install-r",
     "title": "Setup",
@@ -428,7 +439,7 @@
     "href": "appendix/setup.html#download-the-data",
     "title": "Setup",
     "section": "Download the data",
-    "text": "Download the data\nThe course uses a 10x Genomics 5′ Immune Profiling human PBMC dataset with paired gene expression and TCR V(D)J libraries. Any such dataset from the 10x public data portal works:\n\nGo to https://www.10xgenomics.com/datasets and filter by Chromium Single Cell Immune Profiling, species Human, sample type PBMC.\nChoose a dataset that lists both a Gene Expression and a V(D)J T library from the same cells (datasets processed with cellranger multi are ideal).\nDownload the following into data/raw/:\n\nfiltered_feature_bc_matrix.h5 (gene expression)\nraw_feature_bc_matrix.h5 (optional; for ambient-RNA correction)\nfiltered_contig_annotations.csv (TCR contigs)\nThe dataset’s summary HTML, which reports how many cells Cell Ranger called\n\n\n\n\n\n\n\n\nWarning\n\n\n\nIf the GEX and V(D)J files come from separate Cell Ranger runs rather than one multi run, confirm that the barcode suffixes match (AAACCTGAGAAACCAT-1 in both). Barcode mismatch is the most common Week 5 error.\n\n\nFor Week 2’s optional cell-cycle scoring in Python, also download regev_lab_cell_cycle_genes.txt from https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle into data/raw/.\nFor Week 5’s database queries, download the latest VDJdb export from https://vdjdb.cdr3.net (the vdjdb.slim.txt file) into data/raw/.",
+    "text": "Download the data\nThe course uses a 10x Genomics 5′ Immune Profiling human PBMC dataset with paired gene expression and TCR V(D)J libraries. Any such dataset from the 10x public data portal works:\n\nGo to https://www.10xgenomics.com/datasets and filter by Chromium Single Cell Immune Profiling, species Human, sample type PBMC.\nChoose a dataset that lists both a Gene Expression and a V(D)J T library from the same cells (datasets processed with cellranger multi are ideal).\nDownload the following files and move them into the data/raw/ folder inside the course folder you unzipped above:\n\nfiltered_feature_bc_matrix.h5 (gene expression)\nraw_feature_bc_matrix.h5 (optional; for ambient-RNA correction)\nfiltered_contig_annotations.csv (TCR contigs)\nThe dataset’s summary HTML, which reports how many cells Cell Ranger called\n\n\n\n\n\n\n\n\nWarning\n\n\n\nIf the GEX and V(D)J files come from separate Cell Ranger runs rather than one multi run, confirm that the barcode suffixes match (AAACCTGAGAAACCAT-1 in both). Barcode mismatch is the most common Week 5 error.\n\n\nFor Week 2’s optional cell-cycle scoring in Python, also download regev_lab_cell_cycle_genes.txt from https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle into the same data/raw/ folder.\nFor Week 5’s database queries, download the latest VDJdb export from https://vdjdb.cdr3.net (the vdjdb.slim.txt file) into data/raw/ as well.",
     "crumbs": [
       "Appendices",
       "Setup"
@@ -450,7 +461,7 @@
     "href": "appendix/setup.html#verify-your-setup",
     "title": "Setup",
     "section": "Verify your setup",
-    "text": "Verify your setup\n\nR (Seurat)Python (Scanpy)\n\n\nlibrary(Seurat)\nx &lt;- Read10X_h5(\"data/raw/filtered_feature_bc_matrix.h5\")\nif (is.list(x)) x &lt;- x[[\"Gene Expression\"]]\ndim(x)   # roughly 36000 x (number of cells)\ntcr &lt;- read.csv(\"data/raw/filtered_contig_annotations.csv\")\nmean(sub(\"-\\\\d+$\", \"\", tcr$barcode) %in% sub(\"-\\\\d+$\", \"\", colnames(x)))  # should be ~1\n\n\nimport scanpy as sc, pandas as pd\na = sc.read_10x_h5(\"data/raw/filtered_feature_bc_matrix.h5\")\nprint(a.shape)   # (number of cells, roughly 36000)\ntcr = pd.read_csv(\"data/raw/filtered_contig_annotations.csv\")\nprint(tcr[\"barcode\"].str.replace(r\"-\\d+$\", \"\", regex=True).isin(\n      a.obs_names.str.replace(r\"-\\d+$\", \"\", regex=True)).mean())   # should be ~1\n\n\n\nIf both print sensible values, you are ready.",
+    "text": "Verify your setup\nOpen R (via the .Rproj) or Python (launched from the course folder) and run the block for your language. The first line checks the working directory; if it does not end in scRNA-immunology-course, stop and fix that before anything else.\n\nR (Seurat)Python (Scanpy)\n\n\nbasename(getwd())          # should print \"scRNA-immunology-course\"\nlist.files(\"data/raw\")     # should list the files you downloaded\nlibrary(Seurat)\nx &lt;- Read10X_h5(\"data/raw/filtered_feature_bc_matrix.h5\")\nif (is.list(x)) x &lt;- x[[\"Gene Expression\"]]\ndim(x)   # roughly 36000 x (number of cells)\ntcr &lt;- read.csv(\"data/raw/filtered_contig_annotations.csv\")\nmean(sub(\"-\\\\d+$\", \"\", tcr$barcode) %in% sub(\"-\\\\d+$\", \"\", colnames(x)))  # should be ~1\n\n\nimport os; print(os.path.basename(os.getcwd()))   # should print \"scRNA-immunology-course\"\nprint(os.listdir(\"data/raw\"))                       # should list the files you downloaded\nimport scanpy as sc, pandas as pd\na = sc.read_10x_h5(\"data/raw/filtered_feature_bc_matrix.h5\")\nprint(a.shape)   # (number of cells, roughly 36000)\ntcr = pd.read_csv(\"data/raw/filtered_contig_annotations.csv\")\nprint(tcr[\"barcode\"].str.replace(r\"-\\d+$\", \"\", regex=True).isin(\n      a.obs_names.str.replace(r\"-\\d+$\", \"\", regex=True)).mean())   # should be ~1\n\n\n\nIf both print sensible values, you are ready.",
     "crumbs": [
       "Appendices",
       "Setup"

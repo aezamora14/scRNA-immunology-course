@@ -412,6 +412,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#hardware" id="toc-hardware" class="nav-link active" data-scroll-target="#hardware">Hardware</a></li>
   <li><a href="#choose-a-language" id="toc-choose-a-language" class="nav-link" data-scroll-target="#choose-a-language">Choose a language</a></li>
+  <li><a href="#get-the-course-folder" id="toc-get-the-course-folder" class="nav-link" data-scroll-target="#get-the-course-folder">Get the course folder</a></li>
   <li><a href="#install-r" id="toc-install-r" class="nav-link" data-scroll-target="#install-r">Install: R</a></li>
   <li><a href="#install-python" id="toc-install-python" class="nav-link" data-scroll-target="#install-python">Install: Python</a></li>
   <li><a href="#download-the-data" id="toc-download-the-data" class="nav-link" data-scroll-target="#download-the-data">Download the data</a></li>
@@ -456,23 +457,60 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Python / Scanpy</strong> scales better to very large datasets, integrates with deep-learning tools (scVI), and scirpy’s TCR handling is rigorous.</li>
 </ul>
 </section>
+<section id="get-the-course-folder" class="level2">
+<h2 class="anchored" data-anchor-id="get-the-course-folder">Get the course folder</h2>
+<p>All code in this course uses paths like <code>data/raw/filtered_feature_bc_matrix.h5</code> and <code>data/processed/01_pbmc_qc.rds</code>. Those paths are <strong>relative to the course folder</strong>, which you download from GitHub. You do not create or name any folders yourself.</p>
+<ol type="1">
+<li>Go to <a href="https://github.com/aezamora14/scRNA-immunology-course" class="uri">https://github.com/aezamora14/scRNA-immunology-course</a>.</li>
+<li>Click the green <strong>Code</strong> button, then <strong>Download ZIP</strong>. (If you use git: <code>git clone https://github.com/aezamora14/scRNA-immunology-course.git</code> does the same.)</li>
+<li>Unzip it somewhere you will keep for six weeks, e.g.&nbsp;<code>Documents/scRNA-immunology-course/</code>. Inside you will find:</li>
+</ol>
+<pre><code>scRNA-immunology-course/
+├── chapters/          the six weekly sessions (the same text as this website)
+├── data/
+│   ├── raw/           ← put downloaded 10x files here
+│   └── processed/     ← the code saves intermediate objects here
+├── images/
+├── install.R
+├── environment.yml
+└── scRNA-immunology-course.Rproj</code></pre>
+<p><code>data/raw/</code> and <code>data/processed/</code> already exist (they contain only a hidden placeholder file). Everything you download goes into <code>data/raw/</code>; everything the code saves goes into <code>data/processed/</code>. Both folders are ignored by git, so if you later push your own copy to GitHub the large data files will not be uploaded.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Your working directory must be the course folder
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Relative paths only work if R or Python is running <em>from</em> the course folder.</p>
+<ul>
+<li><strong>RStudio:</strong> double-click <code>scRNA-immunology-course.Rproj</code>. RStudio opens with the working directory set correctly; check with <code>getwd()</code>.</li>
+<li><strong>JupyterLab / VS Code:</strong> open a terminal, <code>cd</code> into the course folder, then launch <code>jupyter lab</code> (or open the folder in VS Code). Check with <code>import os; os.getcwd()</code>.</li>
+</ul>
+<p>If you see <code>FileNotFoundError</code> or <code>cannot open file 'data/raw/...'</code>, the working directory is wrong: nine times out of ten the fix is opening the <code>.Rproj</code> or <code>cd</code>-ing into the folder first.</p>
+</div>
+</div>
+</section>
 <section id="install-r" class="level2">
 <h2 class="anchored" data-anchor-id="install-r">Install: R</h2>
 <p>Install R ≥ 4.3 from <a href="https://cran.r-project.org" class="uri">https://cran.r-project.org</a> and RStudio from <a href="https://posit.co/download/rstudio-desktop/" class="uri">https://posit.co/download/rstudio-desktop/</a>. Then, in R, run the course installer (the file <code>install.R</code> in the repository):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"install.R"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"install.R"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>It installs Seurat v5, scRepertoire v2, scDblFinder, harmony, presto, clustree, speckle, edgeR and Azimuth. On macOS you may need Xcode command-line tools (<code>xcode-select --install</code>); on Windows, Rtools matching your R version.</p>
 <p>Verify:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat); <span class="fu">library</span>(scRepertoire)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"Seurat"</span>)        <span class="co"># should be &gt;= 5.0</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"scRepertoire"</span>)  <span class="co"># should be &gt;= 2.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat); <span class="fu">library</span>(scRepertoire)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"Seurat"</span>)        <span class="co"># should be &gt;= 5.0</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"scRepertoire"</span>)  <span class="co"># should be &gt;= 2.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Leiden clustering (<code>algorithm = 4</code>) needs the Python <code>leidenalg</code> package reachable via <code>reticulate</code>. If that fails, use Louvain (<code>algorithm = 1</code>); the course content is unaffected.</p>
 </section>
 <section id="install-python" class="level2">
 <h2 class="anchored" data-anchor-id="install-python">Install: Python</h2>
 <p>Install Miniforge or Miniconda, then create the course environment from <code>environment.yml</code> in the repository:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">-f</span> environment.yml</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate scimmuno</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">"import scanpy, scirpy; print(scanpy.__version__, scirpy.__version__)"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">-f</span> environment.yml</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate scimmuno</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">"import scanpy, scirpy; print(scanpy.__version__, scirpy.__version__)"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Launch JupyterLab with <code>jupyter lab</code>. If you prefer VS Code, select the <code>scimmuno</code> interpreter.</p>
 </section>
 <section id="download-the-data" class="level2">
@@ -481,7 +519,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol type="1">
 <li>Go to <a href="https://www.10xgenomics.com/datasets" class="uri">https://www.10xgenomics.com/datasets</a> and filter by <em>Chromium Single Cell Immune Profiling</em>, species <em>Human</em>, sample type <em>PBMC</em>.</li>
 <li>Choose a dataset that lists both a <strong>Gene Expression</strong> and a <strong>V(D)J T</strong> library from the same cells (datasets processed with <code>cellranger multi</code> are ideal).</li>
-<li>Download the following into <code>data/raw/</code>:
+<li>Download the following files and move them into the <code>data/raw/</code> folder inside the course folder you unzipped above:
 <ul>
 <li><code>filtered_feature_bc_matrix.h5</code> (gene expression)</li>
 <li><code>raw_feature_bc_matrix.h5</code> (optional; for ambient-RNA correction)</li>
@@ -502,8 +540,8 @@ Warning
 <p>If the GEX and V(D)J files come from separate Cell Ranger runs rather than one <code>multi</code> run, confirm that the barcode suffixes match (<code>AAACCTGAGAAACCAT-1</code> in both). Barcode mismatch is the most common Week 5 error.</p>
 </div>
 </div>
-<p>For Week 2’s optional cell-cycle scoring in Python, also download <code>regev_lab_cell_cycle_genes.txt</code> from <a href="https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle" class="uri">https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle</a> into <code>data/raw/</code>.</p>
-<p>For Week 5’s database queries, download the latest VDJdb export from <a href="https://vdjdb.cdr3.net" class="uri">https://vdjdb.cdr3.net</a> (the <code>vdjdb.slim.txt</code> file) into <code>data/raw/</code>.</p>
+<p>For Week 2’s optional cell-cycle scoring in Python, also download <code>regev_lab_cell_cycle_genes.txt</code> from <a href="https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle" class="uri">https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle</a> into the same <code>data/raw/</code> folder.</p>
+<p>For Week 5’s database queries, download the latest VDJdb export from <a href="https://vdjdb.cdr3.net" class="uri">https://vdjdb.cdr3.net</a> (the <code>vdjdb.slim.txt</code> file) into <code>data/raw/</code> as well.</p>
 </section>
 <section id="multi-sample-datasets-for-week-6-and-the-capstone" class="level2">
 <h2 class="anchored" data-anchor-id="multi-sample-datasets-for-week-6-and-the-capstone">Multi-sample datasets for Week 6 and the capstone</h2>
@@ -530,24 +568,29 @@ Note
 </section>
 <section id="verify-your-setup" class="level2">
 <h2 class="anchored" data-anchor-id="verify-your-setup">Verify your setup</h2>
+<p>Open R (via the <code>.Rproj</code>) or Python (launched from the course folder) and run the block for your language. The first line checks the working directory; if it does not end in <code>scRNA-immunology-course</code>, stop and fix that before anything else.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="" aria-current="page">R (Seurat)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Python (Scanpy)</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">Read10X_h5</span>(<span class="st">"data/raw/filtered_feature_bc_matrix.h5"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">is.list</span>(x)) x <span class="ot">&lt;-</span> x[[<span class="st">"Gene Expression"</span>]]</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(x)   <span class="co"># roughly 36000 x (number of cells)</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>tcr <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/raw/filtered_contig_annotations.csv"</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">sub</span>(<span class="st">"-</span><span class="sc">\\</span><span class="st">d+$"</span>, <span class="st">""</span>, tcr<span class="sc">$</span>barcode) <span class="sc">%in%</span> <span class="fu">sub</span>(<span class="st">"-</span><span class="sc">\\</span><span class="st">d+$"</span>, <span class="st">""</span>, <span class="fu">colnames</span>(x)))  <span class="co"># should be ~1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">basename</span>(<span class="fu">getwd</span>())          <span class="co"># should print "scRNA-immunology-course"</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(<span class="st">"data/raw"</span>)     <span class="co"># should list the files you downloaded</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">Read10X_h5</span>(<span class="st">"data/raw/filtered_feature_bc_matrix.h5"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">is.list</span>(x)) x <span class="ot">&lt;-</span> x[[<span class="st">"Gene Expression"</span>]]</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(x)   <span class="co"># roughly 36000 x (number of cells)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>tcr <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/raw/filtered_contig_annotations.csv"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">sub</span>(<span class="st">"-</span><span class="sc">\\</span><span class="st">d+$"</span>, <span class="st">""</span>, tcr<span class="sc">$</span>barcode) <span class="sc">%in%</span> <span class="fu">sub</span>(<span class="st">"-</span><span class="sc">\\</span><span class="st">d+$"</span>, <span class="st">""</span>, <span class="fu">colnames</span>(x)))  <span class="co"># should be ~1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scanpy <span class="im">as</span> sc, pandas <span class="im">as</span> pd</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> sc.read_10x_h5(<span class="st">"data/raw/filtered_feature_bc_matrix.h5"</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(a.shape)   <span class="co"># (number of cells, roughly 36000)</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>tcr <span class="op">=</span> pd.read_csv(<span class="st">"data/raw/filtered_contig_annotations.csv"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tcr[<span class="st">"barcode"</span>].<span class="bu">str</span>.replace(<span class="vs">r"-</span><span class="dv">\d</span><span class="op">+</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>).isin(</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      a.obs_names.<span class="bu">str</span>.replace(<span class="vs">r"-</span><span class="dv">\d</span><span class="op">+</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)).mean())   <span class="co"># should be ~1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os<span class="op">;</span> <span class="bu">print</span>(os.path.basename(os.getcwd()))   <span class="co"># should print "scRNA-immunology-course"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(os.listdir(<span class="st">"data/raw"</span>))                       <span class="co"># should list the files you downloaded</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scanpy <span class="im">as</span> sc, pandas <span class="im">as</span> pd</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> sc.read_10x_h5(<span class="st">"data/raw/filtered_feature_bc_matrix.h5"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(a.shape)   <span class="co"># (number of cells, roughly 36000)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>tcr <span class="op">=</span> pd.read_csv(<span class="st">"data/raw/filtered_contig_annotations.csv"</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tcr[<span class="st">"barcode"</span>].<span class="bu">str</span>.replace(<span class="vs">r"-</span><span class="dv">\d</span><span class="op">+</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>).isin(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      a.obs_names.<span class="bu">str</span>.replace(<span class="vs">r"-</span><span class="dv">\d</span><span class="op">+</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)).mean())   <span class="co"># should be ~1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
