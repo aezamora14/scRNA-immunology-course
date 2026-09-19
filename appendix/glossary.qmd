@@ -1,0 +1,121 @@
+# Glossary {.unnumbered}
+
+**Ambient RNA**
+: Cell-free mRNA in the cell suspension, released by lysed cells, that is captured in every droplet. Produces low-level "expression" of highly abundant genes (haemoglobin, TCR constant genes, `LYZ`) in cells that do not express them.
+
+**Anchors**
+: In Seurat integration, pairs of cells from different batches identified as mutual nearest neighbours in a shared space. Used to learn a batch correction.
+
+**AnnData**
+: Python container for single-cell data (`obs` = cell metadata, `var` = gene metadata, `X` = expression matrix, `obsm` = per-cell matrices like PCA/UMAP). The Scanpy equivalent of a Seurat object.
+
+**Batch effect**
+: Systematic technical variation between groups of samples processed separately (day, operator, lane, reagent lot) that is unrelated to the biological question.
+
+**Cell barcode**
+: A ~16-nt sequence shared by every molecule captured in one droplet. Identifies the (putative) cell.
+
+**CDR3**
+: Complementarity-determining region 3; the hypervariable V–(D)–J junction of a TCR or BCR chain. The primary determinant of antigen specificity and the sequence used to define clonotypes.
+
+**Clonotype**
+: A set of cells inferred to descend from one naive T cell, defined by an explicit rule on TCR sequence (e.g. identical paired CDR3 nucleotide sequences). The definition is a choice; state it.
+
+**Clonal expansion**
+: A clonotype represented by more than one cell, indicating proliferation after antigen encounter.
+
+**Community detection**
+: Graph algorithms (Louvain, Leiden) that partition nodes into densely connected groups by maximising modularity. What "clustering" means in single-cell analysis.
+
+**Doublet**
+: A droplet containing two cells. Heterotypic (different types) doublets form spurious intermediate clusters; homotypic doublets are hard to detect but appear as dual-TCR cells.
+
+**Elbow plot**
+: Variance explained per principal component, in order. Used to choose how many PCs to retain.
+
+**Embedding**
+: The coordinates of cells in a reduced space (PCA, Harmony-corrected PCA, UMAP).
+
+**Feature**
+: A gene (or protein, in CITE-seq). Seurat's word for a row of the count matrix.
+
+**Highly variable genes (HVGs)**
+: Genes whose variance across cells exceeds the expectation from their mean; used as input to PCA.
+
+**Integration**
+: Aligning cells of the same type across batches in a shared embedding so that clustering reflects biology rather than batch.
+
+**k-nearest neighbours (kNN)**
+: For each cell, the $k$ cells closest to it in the embedding. The kNN graph is the basis of clustering and UMAP.
+
+**Leiden / Louvain**
+: Community detection algorithms. Leiden is the refined, faster successor that guarantees connected communities.
+
+**Library size**
+: Total UMIs (or reads) in a cell. Varies for technical reasons; removed by normalization.
+
+**Loadings**
+: The weight of each gene on a principal component. Reading loadings tells you what biology (or artefact) a PC captures.
+
+**Log-normalization**
+: Scaling each cell to a fixed total (e.g. 10,000) then applying $\log(x+1)$.
+
+**Marker gene**
+: A gene expressed in one population and not (or much less) in others, used for annotation.
+
+**Modularity**
+: A score for a graph partition: edges within communities minus the number expected by chance. Louvain/Leiden maximise it.
+
+**MuData**
+: Python container for multimodal data; in this course, a GEX AnnData and an AIRR (TCR) AnnData sharing cell indices.
+
+**Normalization**
+: Any transformation that makes expression values comparable across cells by removing technical scaling factors.
+
+**Pearson residuals**
+: Normalized values from SCTransform-style models: how far an observed count deviates from what a depth-aware negative-binomial model predicts.
+
+**Principal component analysis (PCA)**
+: A linear method that finds orthogonal directions of maximum variance in the data. Reduces thousands of correlated genes to tens of informative axes.
+
+**Productive**
+: A rearranged TCR chain that is in-frame with no stop codon, capable of producing protein.
+
+**Pseudobulk**
+: Summed counts across all cells of one type within one sample, yielding one profile per sample per type. Enables valid differential expression with samples as replicates.
+
+**Pseudoreplication**
+: Treating cells as independent replicates when the biological unit of replication is the donor. Inflates significance.
+
+**Public clonotype**
+: A TCR sequence found in multiple individuals, usually because it has few N-additions and is easy to generate, or because it targets a common epitope.
+
+**Resolution**
+: The Leiden/Louvain parameter that controls community granularity. Higher = more, smaller clusters.
+
+**Scaling**
+: Z-scoring each gene across cells (mean 0, SD 1) before PCA so no gene dominates by magnitude.
+
+**SCTransform**
+: Regularised negative-binomial normalization producing Pearson residuals.
+
+**Shared nearest neighbours (SNN)**
+: A refinement of the kNN graph weighting edges by the Jaccard overlap of two cells' neighbour sets.
+
+**Silhouette**
+: A per-cell score comparing distance to own cluster vs nearest other cluster. Negative values indicate misassignment or ambiguity.
+
+**Sparse matrix**
+: A storage format that records only non-zero entries. Essential because >90% of a count matrix is zero.
+
+**Specificity cluster**
+: A group of distinct clonotypes with similar CDR3s inferred to recognise the same antigen (TCRdist, GLIPH2).
+
+**UMAP**
+: Uniform Manifold Approximation and Projection; a non-linear method that lays out the kNN graph in two dimensions, preserving local neighbourhoods. Distances between islands and island sizes are not interpretable.
+
+**UMI**
+: Unique molecular identifier; a random ~12-nt tag on each captured mRNA molecule, allowing PCR duplicates to be collapsed so counts reflect molecules, not reads.
+
+**V(D)J recombination**
+: Somatic rearrangement of variable, diversity and joining gene segments to generate TCR and BCR diversity.

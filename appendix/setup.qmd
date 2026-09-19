@@ -1,0 +1,106 @@
+# Setup {#sec-setup .unnumbered}
+
+Complete this before Week 1. Budget an hour; package installation is slow, especially on Windows.
+
+## Hardware
+
+A laptop with 16 GB RAM handles a 10k-cell PBMC dataset comfortably in either language. 8 GB works with care (close other applications; avoid the full Azimuth reference). Week 6 multi-sample analysis with 50k+ cells benefits from 32 GB.
+
+## Choose a language
+
+You need only one. Both are fully supported in every chapter.
+
+- **R / Seurat** is the more common choice in immunology labs and has the richer plotting ecosystem for publication figures.
+- **Python / Scanpy** scales better to very large datasets, integrates with deep-learning tools (scVI), and scirpy's TCR handling is rigorous.
+
+## Install: R
+
+Install R ≥ 4.3 from <https://cran.r-project.org> and RStudio from <https://posit.co/download/rstudio-desktop/>. Then, in R, run the course installer (the file `install.R` in the repository):
+
+```r
+source("install.R")
+```
+
+It installs Seurat v5, scRepertoire v2, scDblFinder, harmony, presto, clustree, speckle, edgeR and Azimuth. On macOS you may need Xcode command-line tools (`xcode-select --install`); on Windows, Rtools matching your R version.
+
+Verify:
+
+```r
+library(Seurat); library(scRepertoire)
+packageVersion("Seurat")        # should be >= 5.0
+packageVersion("scRepertoire")  # should be >= 2.0
+```
+
+Leiden clustering (`algorithm = 4`) needs the Python `leidenalg` package reachable via `reticulate`. If that fails, use Louvain (`algorithm = 1`); the course content is unaffected.
+
+## Install: Python
+
+Install Miniforge or Miniconda, then create the course environment from `environment.yml` in the repository:
+
+```bash
+conda env create -f environment.yml
+conda activate scimmuno
+python -c "import scanpy, scirpy; print(scanpy.__version__, scirpy.__version__)"
+```
+
+Launch JupyterLab with `jupyter lab`. If you prefer VS Code, select the `scimmuno` interpreter.
+
+## Download the data
+
+The course uses a 10x Genomics **5′ Immune Profiling** human PBMC dataset with paired gene expression and TCR V(D)J libraries. Any such dataset from the 10x public data portal works:
+
+1. Go to <https://www.10xgenomics.com/datasets> and filter by *Chromium Single Cell Immune Profiling*, species *Human*, sample type *PBMC*.
+2. Choose a dataset that lists both a **Gene Expression** and a **V(D)J T** library from the same cells (datasets processed with `cellranger multi` are ideal).
+3. Download the following into `data/raw/`:
+   - `filtered_feature_bc_matrix.h5` (gene expression)
+   - `raw_feature_bc_matrix.h5` (optional; for ambient-RNA correction)
+   - `filtered_contig_annotations.csv` (TCR contigs)
+   - The dataset's summary HTML, which reports how many cells Cell Ranger called
+
+::: {.callout-warning}
+If the GEX and V(D)J files come from separate Cell Ranger runs rather than one `multi` run, confirm that the barcode suffixes match (`AAACCTGAGAAACCAT-1` in both). Barcode mismatch is the most common Week 5 error.
+:::
+
+For Week 2's optional cell-cycle scoring in Python, also download `regev_lab_cell_cycle_genes.txt` from <https://github.com/scverse/scanpy_usage/tree/master/180209_cell_cycle> into `data/raw/`.
+
+For Week 5's database queries, download the latest VDJdb export from <https://vdjdb.cdr3.net> (the `vdjdb.slim.txt` file) into `data/raw/`.
+
+## Multi-sample datasets for Week 6 and the capstone
+
+Suitable public datasets with paired scRNA + scTCR across several samples and a condition contrast include:
+
+- Multiple healthy-donor 5′ PBMC runs from the 10x portal (null contrast; good for practising mechanics)
+- Peripheral blood from COVID-19 patients versus healthy donors with V(D)J (several 2020–2021 studies deposited paired data in GEO; search GEO for "5' scRNA TCR PBMC COVID")
+- Tumour-infiltrating T cells with matched blood (search GEO for "scTCR-seq tumor blood paired"; several melanoma, lung and colorectal studies deposited both libraries)
+
+Check that the deposit includes per-sample `filtered_contig_annotations.csv` files, not just processed clonotype tables, or you will not be able to redefine clonotypes.
+
+::: {.callout-note}
+The instructor may replace these with a lab dataset. Substitution is seamless as long as the file names and layout under `data/raw/` follow the pattern above.
+:::
+
+## Verify your setup
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+library(Seurat)
+x <- Read10X_h5("data/raw/filtered_feature_bc_matrix.h5")
+if (is.list(x)) x <- x[["Gene Expression"]]
+dim(x)   # roughly 36000 x (number of cells)
+tcr <- read.csv("data/raw/filtered_contig_annotations.csv")
+mean(sub("-\\d+$", "", tcr$barcode) %in% sub("-\\d+$", "", colnames(x)))  # should be ~1
+```
+
+## Python (Scanpy)
+```python
+import scanpy as sc, pandas as pd
+a = sc.read_10x_h5("data/raw/filtered_feature_bc_matrix.h5")
+print(a.shape)   # (number of cells, roughly 36000)
+tcr = pd.read_csv("data/raw/filtered_contig_annotations.csv")
+print(tcr["barcode"].str.replace(r"-\d+$", "", regex=True).isin(
+      a.obs_names.str.replace(r"-\d+$", "", regex=True)).mean())   # should be ~1
+```
+:::
+
+If both print sensible values, you are ready.

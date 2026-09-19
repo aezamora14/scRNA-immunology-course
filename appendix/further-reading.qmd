@@ -1,0 +1,40 @@
+# Further Reading {.unnumbered}
+
+The resources below are stable, maintained and free. Verify links; software documentation moves.
+
+## Comprehensive references
+
+- **Single-cell best practices** (Heumos, Schaar, Lance et al., *Nature Reviews Genetics*, 2023; online book at <https://www.sc-best-practices.org>). The most complete current treatment, Python-centred but conceptually language-neutral. Chapters on quality control, normalization, integration, differential expression and clonotype analysis align directly with this course.
+- **Orchestrating Single-Cell Analysis with Bioconductor** (<https://bioconductor.org/books/OSCA/>). The R/Bioconductor equivalent; excellent on the statistics of QC, normalization and feature selection.
+- **Luecken & Theis, "Current best practices in single-cell RNA-seq analysis: a tutorial"**, *Molecular Systems Biology*, 2019. Shorter and slightly dated but still the best single-paper overview.
+
+## Software documentation
+
+- Seurat: <https://satijalab.org/seurat/>
+- Scanpy: <https://scanpy.readthedocs.io>
+- scRepertoire: <https://www.borch.dev/uploads/screpertoire/>
+- scirpy: <https://scirpy.scverse.org>
+- Azimuth: <https://azimuth.hubmapconsortium.org>
+- CellTypist: <https://www.celltypist.org>
+- Harmony: <https://portals.broadinstitute.org/harmony/>
+- scvi-tools: <https://scvi-tools.org>
+
+## Key methods papers (by week)
+
+**Week 1.** Lun et al., "EmptyDrops", *Genome Biology*, 2019 (cell calling). Germain et al., "scDblFinder", *F1000Research*, 2021. Wolock et al., "Scrublet", *Cell Systems*, 2019. Young & Behjati, "SoupX", *GigaScience*, 2020 (ambient RNA).
+
+**Week 2.** Hafemeister & Satija, "Normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression", *Genome Biology*, 2019 (SCTransform). Ahlmann-Eltze & Huber, "Comparison of transformations for single-cell RNA-seq data", *Nature Methods*, 2023.
+
+**Week 3.** Traag, Waltman & van Eck, "From Louvain to Leiden", *Scientific Reports*, 2019. McInnes, Healy & Melville, "UMAP", arXiv 1802.03426, 2018. Chari & Pachter, "The specious art of single-cell genomics", *PLOS Computational Biology*, 2023 (a critique of over-interpreting embeddings that every student should read). Zappia & Oshlack, "Clustering trees", *GigaScience*, 2018.
+
+**Week 4.** Hao et al., "Integrated analysis of multimodal single-cell data", *Cell*, 2021 (Seurat v4 / Azimuth). Domínguez Conde et al., "Cross-tissue immune cell analysis reveals tissue-specific features in humans", *Science*, 2022 (CellTypist). Szabo et al., "Single-cell transcriptomics of human T cells reveals tissue and activation signatures", *Nature Communications*, 2019 for T cell state definitions.
+
+**Week 5.** Borcherding et al., "scRepertoire", *F1000Research*, 2020. Sturm et al., "Scirpy", *Bioinformatics*, 2020. Dash et al., "Quantifiable predictive features define epitope-specific T cell receptor repertoires", *Nature*, 2017 (TCRdist). Huang et al., "GLIPH2", *Nature Biotechnology*, 2020. Zhang et al., "Lineage tracking reveals dynamic relationships of T cells in colorectal cancer", *Nature*, 2018 (STARTRAC). Goncharov et al., "VDJdb in the pandemic era", *Nature Methods*, 2022.
+
+**Week 6.** Korsunsky et al., "Harmony", *Nature Methods*, 2019. Luecken et al., "Benchmarking atlas-level data integration in single-cell genomics", *Nature Methods*, 2022. Squair et al., "Confronting false discoveries in single-cell differential expression", *Nature Communications*, 2021 (the pseudobulk argument). Zimmerman, Espeland & Langefeld, "A practical solution to pseudoreplication bias in single-cell studies", *Nature Communications*, 2021. Phipson et al., "propeller", *Bioinformatics*, 2022. Büttner et al., "scCODA", *Nature Communications*, 2021.
+
+## Immunology-specific single-cell resources
+
+- Human Protein Atlas immune cell section for marker verification: <https://www.proteinatlas.org/humanproteome/immune+cell>
+- Azimuth human PBMC reference marker tables (linked from the Azimuth site)
+- The *Immunological Genome Project* (ImmGen) for mouse: <https://www.immgen.org>

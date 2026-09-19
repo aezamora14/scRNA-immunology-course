@@ -1,0 +1,303 @@
+# Annotation: From Clusters to Immune Cell States {#sec-annotation}
+
+::: {.objectives}
+**Learning objectives**
+
+- Use canonical markers and cluster-level differential expression to assign identities, and know why single-cell DE p-values after clustering are optimistic
+- Apply reference-based annotation (Azimuth, CellTypist) and reconcile it with manual annotation
+- Distinguish cell *type* from cell *state* and handle cycling, doublet-like and ambiguous clusters
+- Subcluster T cells to resolve naive, memory, effector, regulatory, MAIT and γδ populations
+:::
+
+## Concepts
+
+### Type versus state
+
+A **cell type** is a stable lineage identity (CD4 T cell, monocyte, B cell), set by developmental history and largely irreversible. A **cell state** is a reversible condition within a type (naive, activated, exhausted, cycling). Clustering does not know the difference. A cluster of cycling cells will contain CD4 T, CD8 T and NK cells that happen to be in S/G2M; an "activated" cluster may pool several lineages that share an interferon response. Annotation therefore proceeds hierarchically: first lineage, then state within lineage, often by subclustering.
+
+### Marker-based annotation
+
+The fastest route to a first-pass annotation is a panel of markers you already trust as an immunologist. The table below is a starting point for human PBMCs.
+
+| Gene(s) | Population | Notes |
+|---|---|---|
+| `CD3D`, `CD3E`, `CD3G` | T cells | Also low in NK via ambient/`CD3E` transcripts |
+| `CD4` | CD4 T cells | Poorly detected at the RNA level; infer CD4 as `CD3+ CD8A−` |
+| `CD8A`, `CD8B` | CD8 T cells | `CD8A` also on some NK and γδ |
+| `CCR7`, `SELL`, `TCF7`, `LEF1` | Naive / central memory | `CCR7`-high `IL7R`-high with no cytotoxic genes = naive |
+| `IL7R`, `LTB`, `S100A4` | Memory CD4 | |
+| `GZMK` | Early/transitional effector memory CD8 | Precedes `GZMB` in differentiation |
+| `GZMB`, `GZMH`, `PRF1`, `NKG7`, `FGFBP2`, `CX3CR1` | Cytotoxic effector CD8 / TEMRA | Also NK |
+| `FOXP3`, `IL2RA`, `CTLA4`, `IKZF2`, `RTKN2` | Regulatory T cells | `FOXP3` is sparse; use the set |
+| `TRDC`, `TRGC1`, `TRGC2`, `TRDV2`, `TRGV9` | γδ T cells | `TRDC` is the reliable one |
+| `SLC4A10`, `KLRB1`, `ZBTB16`, `RORC`, `TRAV1-2` | MAIT cells | Confirm with `TRAV1-2` in the TCR data (Week 5) |
+| `PDCD1`, `HAVCR2`, `LAG3`, `TIGIT`, `TOX`, `CXCL13`, `ENTPD1` | Exhausted / dysfunctional T cells | Rare in blood; central in tumour |
+| `MKI67`, `TOP2A`, `STMN1` | Cycling cells | A state, not a type; subcluster or score |
+| `ISG15`, `IFI6`, `IFIT3`, `MX1` | Interferon-stimulated | A state that cross-cuts lineages |
+| `GNLY`, `KLRD1`, `KLRF1`, `NCAM1`, `FCGR3A`, `TYROBP` | NK cells | `CD3−` distinguishes from cytotoxic CD8 |
+| `MS4A1`, `CD79A`, `CD79B`, `CD19` | B cells | `IGHD`/`TCL1A` naive; `CD27`/`IGHG*` memory |
+| `MZB1`, `JCHAIN`, `XBP1`, `SDC1`, `PRDM1` | Plasmablasts / plasma cells | Very high UMI, high `percent.mt` |
+| `CD14`, `LYZ`, `S100A8`, `S100A9`, `VCAN` | Classical monocytes | |
+| `FCGR3A`, `MS4A7`, `CDKN1C`, `LST1` | Non-classical monocytes | |
+| `FCER1A`, `CD1C`, `CLEC10A` | cDC2 | |
+| `CLEC9A`, `XCR1`, `IDO1` | cDC1 | Rare |
+| `LILRA4`, `IL3RA`, `CLEC4C`, `JCHAIN` | pDC | |
+| `PPBP`, `PF4`, `GP9` | Platelets | Contaminant; remove |
+| `HBB`, `HBA1`, `HBA2` | Erythrocytes | Contaminant; remove |
+
+: Canonical human PBMC markers {.marker-table .striped .hover}
+
+::: {.immuno}
+**Markers that betray you.** `CD4` mRNA is barely detectable in CD4 T cells; you will see more `CD4` in monocytes. `FOXP3` drops out in most Tregs. `CD8A` alone does not separate CD8 T from NK or γδ. Always annotate from a *set* of markers and a *pattern* across clusters (dot plots), never from one gene in one cell.
+:::
+
+### Differential expression between clusters
+
+Marker discovery tests each gene for higher expression in one cluster versus all others. The Wilcoxon rank-sum test is the default and is adequate for finding markers. Its p-values, however, are not valid inference:
+
+::: {.concept}
+**Double dipping.** We defined clusters by finding groups of cells with different expression, then test whether their expression differs. The null hypothesis was falsified by construction. Cluster-marker p-values are useful for *ranking* genes, not for claiming a population is "significantly" different. For real inferential questions (Does exhaustion differ between responders and non-responders?) you need biological replicates and pseudobulk methods, which we cover in Week 6.
+:::
+
+Rank markers by effect size (log fold change, fraction of cells expressing) rather than by p-value, and require that a marker be expressed in a substantial fraction of the cluster (`min.pct` / `pts`).
+
+### Reference-based annotation
+
+Rather than annotating from scratch, you can transfer labels from a curated reference atlas. **Azimuth** (Seurat) maps your cells onto a reference PBMC atlas using anchors in a shared low-dimensional space and transfers labels at three levels of granularity, with a per-cell mapping score. **CellTypist** (Python) is a logistic-regression classifier trained on hundreds of thousands of curated immune cells, with models at several resolutions and a majority-voting step that smooths predictions over your own clusters.
+
+Reference annotation is fast, consistent across studies and excellent at catching things you would miss (a handful of pDCs, a CD4 CTL cluster). It fails on populations absent from the reference (disease-specific states, exhausted cells in a healthy-PBMC reference) and cannot tell you when it is wrong; the mapping score can only flag when it is *uncertain*. Treat it as a second opinion to reconcile with your manual annotation, not as ground truth.
+
+### Subclustering
+
+T cell states that matter to immunologists (naive vs central memory, Treg vs activated CD4, MAIT vs effector CD8) live in a small corner of the total variance and are often merged at the global resolution. Standard practice is to subset the T cells, **recompute HVGs and PCA on that subset** (so the components now describe variation within T cells rather than T-vs-monocyte), and cluster again.
+
+## Hands-on
+
+### First-pass markers
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+library(Seurat)
+library(dplyr)
+library(ggplot2)
+pbmc <- readRDS("data/processed/03_pbmc_clustered.rds")
+Idents(pbmc) <- "leiden_0.8"
+
+markers <- c("CD3E","CD4","CD8A","CCR7","IL7R","GZMK","GZMB","PRF1","NKG7",
+             "FOXP3","IL2RA","TRDC","SLC4A10","KLRB1","MKI67","GNLY","KLRF1",
+             "MS4A1","CD79A","MZB1","JCHAIN","CD14","LYZ","FCGR3A","MS4A7",
+             "FCER1A","CD1C","LILRA4","PPBP","HBB")
+
+DotPlot(pbmc, features = markers, cluster.idents = TRUE) + RotatedAxis()
+FeaturePlot(pbmc, features = c("CD3E","CD8A","MS4A1","LYZ","GNLY","FOXP3"),
+            order = TRUE, ncol = 3)
+```
+
+## Python (Scanpy)
+```python
+import scanpy as sc
+import pandas as pd
+adata = sc.read_h5ad("data/processed/03_pbmc_clustered.h5ad")
+
+markers = ["CD3E","CD4","CD8A","CCR7","IL7R","GZMK","GZMB","PRF1","NKG7",
+           "FOXP3","IL2RA","TRDC","SLC4A10","KLRB1","MKI67","GNLY","KLRF1",
+           "MS4A1","CD79A","MZB1","JCHAIN","CD14","LYZ","FCGR3A","MS4A7",
+           "FCER1A","CD1C","LILRA4","PPBP","HBB"]
+
+# use_raw=True plots the full log-normalized matrix, not the scaled HVG subset
+sc.pl.dotplot(adata, markers, groupby="leiden_0.8", use_raw=True, dendrogram=True)
+sc.pl.umap(adata, color=["CD3E","CD8A","MS4A1","LYZ","GNLY","FOXP3"],
+           use_raw=True, ncols=3, frameon=False)
+```
+:::
+
+### Cluster markers by differential expression
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+# presto makes FindAllMarkers ~10x faster; install.packages("presto") via remotes
+all_markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.25,
+                              logfc.threshold = 0.5, test.use = "wilcox")
+
+top5 <- all_markers %>%
+  group_by(cluster) %>%
+  slice_max(order_by = avg_log2FC, n = 5) %>%
+  ungroup()
+print(top5, n = Inf)
+
+DoHeatmap(subset(pbmc, downsample = 200), features = top5$gene) + NoLegend()
+```
+
+## Python (Scanpy)
+```python
+sc.tl.rank_genes_groups(adata, groupby="leiden_0.8", method="wilcoxon",
+                        use_raw=True, pts=True)
+
+# Table of the top 5 genes per cluster, filtered by effect size and % expressing
+sc.tl.filter_rank_genes_groups(adata, min_fold_change=1.5, min_in_group_fraction=0.25)
+sc.pl.rank_genes_groups_dotplot(adata, n_genes=5, key="rank_genes_groups_filtered")
+
+top = sc.get.rank_genes_groups_df(adata, group=None).groupby("group").head(5)
+print(top[["group", "names", "logfoldchanges", "pct_nz_group"]])
+```
+:::
+
+### Reference-based annotation
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+# Azimuth: remotes::install_github("satijalab/azimuth")
+# The PBMC reference downloads automatically (~1 GB) on first use.
+library(Azimuth)
+pbmc <- RunAzimuth(pbmc, reference = "pbmcref")
+
+# Labels at three granularities plus a mapping score
+head(pbmc@meta.data[, c("predicted.celltype.l1", "predicted.celltype.l2",
+                        "predicted.celltype.l3", "mapping.score")])
+DimPlot(pbmc, group.by = "predicted.celltype.l2", label = TRUE, repel = TRUE) + NoLegend()
+
+# How do reference labels distribute across your clusters?
+table(pbmc$leiden_0.8, pbmc$predicted.celltype.l2) %>% 
+  as.data.frame.matrix() %>% 
+  { .[, colSums(.) > 20] }
+```
+
+## Python (Scanpy)
+```python
+# pip install celltypist
+import celltypist
+from celltypist import models
+
+models.download_models(model=["Immune_All_Low.pkl", "Immune_All_High.pkl"])
+model = models.Model.load("Immune_All_Low.pkl")
+
+# CellTypist expects log1p(CP10k); adata.raw holds exactly that
+pred = celltypist.annotate(adata.raw.to_adata(), model=model, majority_voting=True)
+adata.obs["celltypist"] = pred.predicted_labels["predicted_labels"].values
+adata.obs["celltypist_mv"] = pred.predicted_labels["majority_voting"].values
+adata.obs["celltypist_conf"] = pred.probability_matrix.max(axis=1).values
+
+sc.pl.umap(adata, color=["celltypist_mv", "celltypist_conf"], legend_loc="on data",
+           legend_fontsize=7, frameon=False)
+
+pd.crosstab(adata.obs["leiden_0.8"], adata.obs["celltypist_mv"]).loc[
+    :, lambda d: d.sum() > 20]
+```
+:::
+
+### Assign your annotation
+
+Reconcile the dot plot, DE markers and reference labels, then commit to names. Record ambiguous cases in comments.
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+# Edit these to match YOUR cluster numbers after inspecting the plots above
+annotation <- c(
+  "0"  = "CD4 T naive",
+  "1"  = "CD14 mono",
+  "2"  = "CD4 T memory",
+  "3"  = "CD8 T naive",
+  "4"  = "NK",
+  "5"  = "CD8 T effector",
+  "6"  = "B naive",
+  "7"  = "B memory",
+  "8"  = "CD16 mono",
+  "9"  = "Treg",
+  "10" = "MAIT",
+  "11" = "cDC2",
+  "12" = "Platelet",        # remove
+  "13" = "pDC",
+  "14" = "Proliferating"    # mixed lineage; resolve by subclustering
+)
+pbmc$celltype <- unname(annotation[as.character(pbmc$leiden_0.8)])
+pbmc <- subset(pbmc, celltype != "Platelet")
+DimPlot(pbmc, group.by = "celltype", label = TRUE, repel = TRUE) + NoLegend()
+```
+
+## Python (Scanpy)
+```python
+annotation = {
+    "0": "CD4 T naive", "1": "CD14 mono", "2": "CD4 T memory",
+    "3": "CD8 T naive", "4": "NK", "5": "CD8 T effector",
+    "6": "B naive", "7": "B memory", "8": "CD16 mono", "9": "Treg",
+    "10": "MAIT", "11": "cDC2", "12": "Platelet", "13": "pDC",
+    "14": "Proliferating",
+}
+adata.obs["celltype"] = adata.obs["leiden_0.8"].map(annotation).astype("category")
+adata = adata[adata.obs["celltype"] != "Platelet"].copy()
+sc.pl.umap(adata, color="celltype", legend_loc="on data", legend_fontsize=8, frameon=False)
+```
+:::
+
+### Subcluster T cells
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+tcells <- subset(pbmc, celltype %in% grep("T |Treg|MAIT|Prolif", unique(pbmc$celltype), value = TRUE))
+
+# Recompute everything on the subset so PCs describe T-cell-internal variation
+tcells <- FindVariableFeatures(tcells, nfeatures = 2000)
+VariableFeatures(tcells) <- grep("^(TR[ABDG]V|IG[HKL]V)", VariableFeatures(tcells),
+                                 value = TRUE, invert = TRUE)
+tcells <- ScaleData(tcells) %>% RunPCA(npcs = 30, verbose = FALSE) %>%
+  FindNeighbors(dims = 1:20) %>% FindClusters(resolution = 0.8, algorithm = 4) %>%
+  RunUMAP(dims = 1:20)
+
+t_markers <- c("CCR7","SELL","TCF7","IL7R","LTB","GZMK","GZMB","PRF1","CX3CR1",
+               "FOXP3","IL2RA","CTLA4","TRDC","TRGV9","SLC4A10","KLRB1",
+               "PDCD1","TIGIT","MKI67","ISG15")
+DotPlot(tcells, features = t_markers, cluster.idents = TRUE) + RotatedAxis()
+
+saveRDS(pbmc,   "data/processed/04_pbmc_annotated.rds")
+saveRDS(tcells, "data/processed/04_tcells.rds")
+```
+
+## Python (Scanpy)
+```python
+is_t = adata.obs["celltype"].str.contains("T |Treg|MAIT|Prolif")
+tcells = adata[is_t].copy()
+
+# Start from log-normalized values and recompute HVGs/PCA on the subset
+tcells = tcells.raw.to_adata()
+tcells.layers["counts"] = adata[is_t].layers["counts"].copy()
+sc.pp.highly_variable_genes(tcells, n_top_genes=2000, flavor="seurat_v3", layer="counts")
+tcells.var.loc[tcells.var_names.str.match(r"^(TR[ABDG]V|IG[HKL]V)"), "highly_variable"] = False
+tcells.raw = tcells
+sc.pp.scale(tcells, max_value=10)
+sc.tl.pca(tcells, n_comps=30, mask_var="highly_variable")
+sc.pp.neighbors(tcells, n_neighbors=20, n_pcs=20)
+sc.tl.leiden(tcells, resolution=0.8, flavor="igraph", n_iterations=2, key_added="t_leiden")
+sc.tl.umap(tcells)
+
+t_markers = ["CCR7","SELL","TCF7","IL7R","LTB","GZMK","GZMB","PRF1","CX3CR1",
+             "FOXP3","IL2RA","CTLA4","TRDC","TRGV9","SLC4A10","KLRB1",
+             "PDCD1","TIGIT","MKI67","ISG15"]
+sc.pl.dotplot(tcells, t_markers, groupby="t_leiden", use_raw=True, dendrogram=True)
+
+adata.write_h5ad("data/processed/04_pbmc_annotated.h5ad")
+tcells.write_h5ad("data/processed/04_tcells.h5ad")
+```
+:::
+
+## Pitfalls
+
+::: {.pitfall}
+- **Annotating from one gene.** `CD4+` by mRNA misses most CD4 T cells and catches monocytes.
+- **Naming every cluster as a distinct subset.** Some clusters are the same population at different activation levels, or the same lineage in different cell-cycle phases.
+- **Trusting reference labels blindly.** A healthy-PBMC reference will label exhausted tumour T cells as "CD8 TEM". Check mapping scores and marker expression.
+- **Reporting Wilcoxon p-values as evidence.** They rank markers; they do not test hypotheses about populations you defined from the same data.
+- **Skipping re-computation when subclustering.** Reusing global PCs on a T cell subset leaves you clustering on T-vs-myeloid noise.
+- **Missing contaminants and doublets.** A cluster expressing `CD3E` *and* `LYZ` *and* `MS4A1` is doublets, not a trispecific cell.
+:::
+
+## Exercises
+
+1. For each of your clusters, list the three markers you used to name it and one marker you expected but did *not* see. Where the reference annotation disagreed with yours, which did you trust and why?
+2. Find the cluster(s) driven by cell cycle. Split it by lineage using `CD3E`, `CD8A`, `MS4A1`, `LYZ`. What proportion is T?
+3. In the T cell subclustering, identify MAIT cells by `SLC4A10`/`KLRB1`. Keep the barcode list; in Week 5 you will check how many carry `TRAV1-2`.
+4. *(Stretch)* Score each T cell for an exhaustion signature (`PDCD1`, `HAVCR2`, `LAG3`, `TIGIT`, `TOX`, `CTLA4`) and an interferon signature. Do either form a cluster, or are they distributed as gradients across existing clusters? What does that imply about calling "exhausted" a cell type in blood?

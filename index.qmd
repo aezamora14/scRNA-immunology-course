@@ -1,0 +1,63 @@
+# Welcome {.unnumbered}
+
+This is a six-week, hands-on course for graduate students in immunology who want to analyse **single-cell RNA-seq (scRNA-seq)** and paired **single-cell TCR-seq (scTCR-seq)** data with confidence. It assumes you understand immunology well and programming a little. Every analysis step is taught twice: conceptually (what the algorithm does and why) and practically, in both **R / Seurat** and **Python / Scanpy**. Pick one language and stick with it, or read both to see how the ideas transfer.
+
+::: {.objectives}
+**By the end of this course you will be able to**
+
+- Take a 10x Genomics 5′ gene-expression + V(D)J experiment from raw count matrices to annotated cell states and clonotypes
+- Explain, in plain language, what normalization, PCA, k-nearest-neighbour graphs, Leiden clustering and UMAP each do to your data, and what they can and cannot tell you
+- Define clonotypes defensibly, quantify clonal expansion and diversity, and connect TCR sequence to T cell phenotype
+- Compare samples and conditions without fooling yourself with batch effects or pseudoreplication
+- Read a single-cell figure in a paper and know exactly which choices produced it
+:::
+
+## How the course is organised
+
+Each weekly session is one chapter and runs about 2.5 hours: roughly 45 minutes of concept discussion followed by 90 minutes of guided coding. Every chapter follows the same template:
+
+1. **Learning objectives**
+2. **Concepts** — the ideas behind the step, with diagrams and immunology-specific commentary
+3. **Hands-on** — code shown in an R tab and a Python tab
+4. **Pitfalls** — the mistakes we see most often
+5. **Exercises** — to complete before the next session
+
+| Week | Chapter | Core question |
+|------|---------|---------------|
+| 1 | [From cells to counts](chapters/01-from-cells-to-counts.qmd) | What is actually in a count matrix, and which barcodes are real cells? |
+| 2 | [Normalization and PCA](chapters/02-normalization-and-pca.qmd) | How do we make cells comparable and compress 20,000 genes into a useful space? |
+| 3 | [Neighbours, clustering, UMAP](chapters/03-neighbors-clustering-umap.qmd) | How do we find groups of similar cells, and how should we (not) read a UMAP? |
+| 4 | [Annotation](chapters/04-annotation.qmd) | Which immune cell types and states are these clusters? |
+| 5 | [TCR repertoire](chapters/05-tcr-repertoire.qmd) | What are the clonotypes, how expanded are they, and which phenotypes do they occupy? |
+| 6 | [Multi-sample analysis and capstone](chapters/06-multisample-and-capstone.qmd) | How do we compare conditions honestly, and track clones across samples? |
+
+## The dataset
+
+We use a single public 10x Genomics dataset throughout: human PBMCs profiled with the **Chromium 5′ Immune Profiling** workflow, which yields a gene expression library and a paired TCR V(D)J library from the same cells. One dataset carried across all six weeks means you build one complete analysis rather than six disconnected snippets. The [Setup appendix](appendix/setup.qmd) explains how to download it.
+
+::: {.callout-tip}
+## Working with your own data
+Everything here transfers directly to tumour-infiltrating lymphocytes, sorted T cell populations, mouse samples or multi-timepoint studies. Where mouse-specific changes are needed (gene symbols, mitochondrial gene prefix, reference atlases) we say so.
+:::
+
+## Before Week 1
+
+Work through the [Setup appendix](appendix/setup.qmd): install R or Python with the required packages, download the data, and confirm you can load a count matrix. Setup problems are the single biggest time sink in a workshop, so please do this beforehand and open an issue on the course repository if you get stuck.
+
+## Reading the code tabs
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+# R code looks like this. Seurat v5, scRepertoire v2.
+library(Seurat)
+```
+
+## Python (Scanpy)
+```python
+# Python code looks like this. Scanpy >= 1.10, scirpy >= 0.17.
+import scanpy as sc
+```
+:::
+
+Selecting a language tab in one chapter selects it everywhere. Code blocks have a copy button in the top-right corner.

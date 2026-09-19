@@ -1,0 +1,363 @@
+# Multi-sample Analysis and Capstone {#sec-multisample}
+
+::: {.objectives}
+**Learning objectives**
+
+- Distinguish batch effects from biological differences and decide when integration is needed
+- Explain what Harmony, anchor-based (CCA/RPCA) and scVI integration each do to the data
+- Perform differential expression between conditions with pseudobulk methods and explain pseudoreplication
+- Test compositional changes and track clonotypes across samples or timepoints
+- Complete an end-to-end analysis and present it
+:::
+
+## Concepts
+
+### Batch effects
+
+Cells processed on different days, by different hands, in different 10x lanes, or from different donors differ systematically in ways unrelated to the biology you care about. In a UMAP, the same cell type from two batches forms two islands. Left uncorrected, batch will dominate clustering and every "condition-specific cluster" will be a batch-specific cluster.
+
+::: {.concept}
+**Batch is confounded with biology by design in most experiments.** Patients versus controls, pre- versus post-treatment, tumour versus blood: these usually arrive in different batches. No algorithm can separate a batch effect from a biological effect when they are perfectly confounded. Integration methods *assume* that the same cell types exist in every batch and align them. If a cell state truly exists only in one condition, aggressive integration will erase it. The defences are experimental (process conditions together, multiplex with hashing or genotype) and analytical (integrate conservatively, check that condition-specific populations survive, and never test DE on integrated values).
+:::
+
+### Integration methods
+
+All integration methods find a shared representation in which cells of the same type from different batches overlap. They differ in what they modify:
+
+- **Harmony** operates on the PCA embedding. It iteratively clusters cells, computes per-batch cluster centroids, and shifts each cell's PC coordinates to remove batch-specific offsets. Fast, works on large data, and leaves expression values untouched. The corrected embedding is used for the kNN graph, clustering and UMAP.
+- **Seurat anchors (CCA / RPCA)** find pairs of mutually similar cells across batches ("anchors"), then use them to learn a correction. CCA is more aggressive (good when batches are very different, risks over-correction); RPCA is more conservative (good when you expect real condition differences). Seurat v5's `IntegrateLayers` returns a corrected embedding.
+- **scVI / scANVI** fit a deep generative model of counts with batch as a covariate; the latent space is batch-corrected and can also denoise expression. Best for very large or highly heterogeneous datasets, at the cost of GPU time and more hyperparameters.
+
+Whichever you choose, assess it: cell types should mix across batches (a low batch-LISI or high batch mixing score) *while* remaining separated from each other (high cell-type silhouette). Over-correction looks like everything merged into a blob.
+
+### Differential expression between conditions: pseudobulk
+
+The question "Is `GZMB` higher in effector CD8 T cells from patients than from controls?" has a sample size equal to the number of **patients**, not the number of cells. Ten thousand cells from three patients are three biological replicates with a great deal of within-replicate measurement.
+
+::: {.concept}
+**Pseudoreplication.** Treating cells as independent observations inflates the sample size by orders of magnitude and produces astronomically small p-values for tiny effects, including effects driven by a single unusual donor. Every single-cell DE method that tests cell-vs-cell across conditions (Wilcoxon, MAST, single-cell t-tests) has this problem.
+
+**Pseudobulk** fixes it by summing counts across all cells of a given type within each sample, producing one expression profile per sample per cell type. You then run bulk RNA-seq DE methods (edgeR, DESeq2, limma) with samples as the unit of replication. Benchmarks consistently show pseudobulk methods have the best false-discovery control. The requirement: at least 3, preferably more, biological replicates per condition.
+:::
+
+### Compositional changes
+
+"Are there more Tregs in patients?" is a question about proportions. Cell-type proportions within a sample are not independent (if Tregs go up, something else goes down), and they vary hugely between donors. Test at the sample level: compute per-sample proportions and use a method that handles compositional data and replicate variability (`propeller` in R, `scCODA` in Python). Do not run a chi-squared test on pooled cell counts; that suffers from pseudoreplication too.
+
+### Tracking clonotypes across samples
+
+With TCR data from multiple samples of the same individual (blood and tumour, pre- and post-treatment, multiple timepoints), a clonotype becomes a lineage barcode you can follow. Questions become answerable: Did the clones that expanded after treatment exist before it? Do tumour-infiltrating clones also circulate? Did an exhausted clone's sister cells in blood look naive or effector? Because each individual has a unique repertoire, clonotype tracking is always **within-donor**; overlap between donors is limited to public clones and is itself a finding.
+
+## Hands-on
+
+For this chapter you need at least two samples. If you have only the single donor dataset, split it artificially by lane or randomly to practise the mechanics, but remember the biology will be null. The [Setup appendix](../appendix/setup.qmd) lists suitable public multi-sample datasets.
+
+### Merge and inspect before integrating
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+library(Seurat)
+library(dplyr)
+library(ggplot2)
+
+# Assume a list of per-sample Seurat objects, each already QC'd (Week 1)
+objs <- list(
+  ctrl1 = readRDS("data/processed/ctrl1_qc.rds"),
+  ctrl2 = readRDS("data/processed/ctrl2_qc.rds"),
+  pat1  = readRDS("data/processed/pat1_qc.rds"),
+  pat2  = readRDS("data/processed/pat2_qc.rds")
+)
+for (n in names(objs)) { objs[[n]]$sample <- n; objs[[n]]$condition <- sub("\\d$", "", n) }
+
+# Seurat v5 keeps samples as layers within one assay
+merged <- merge(objs[[1]], objs[-1], add.cell.ids = names(objs))
+merged <- NormalizeData(merged) %>% FindVariableFeatures() %>% ScaleData() %>%
+  RunPCA(verbose = FALSE)
+merged <- FindNeighbors(merged, dims = 1:30) %>% FindClusters(resolution = 0.5) %>%
+  RunUMAP(dims = 1:30, reduction.name = "umap.unintegrated")
+
+# How bad is the batch effect? Same cell types should overlap across samples
+DimPlot(merged, reduction = "umap.unintegrated", group.by = c("sample", "seurat_clusters"))
+```
+
+## Python (Scanpy)
+```python
+import scanpy as sc
+import anndata as ad
+import pandas as pd
+import numpy as np
+
+samples = ["ctrl1", "ctrl2", "pat1", "pat2"]
+adatas = {s: sc.read_h5ad(f"data/processed/{s}_qc.h5ad") for s in samples}
+adata = ad.concat(adatas, label="sample", index_unique="-")
+adata.obs["condition"] = adata.obs["sample"].str.replace(r"\d$", "", regex=True)
+adata.layers["counts"] = adata.X.copy()
+
+sc.pp.normalize_total(adata, target_sum=1e4); sc.pp.log1p(adata)
+sc.pp.highly_variable_genes(adata, n_top_genes=2000, flavor="seurat_v3",
+                            layer="counts", batch_key="sample")
+adata.raw = adata
+sc.pp.scale(adata, max_value=10)
+sc.tl.pca(adata, n_comps=50, mask_var="highly_variable")
+sc.pp.neighbors(adata, n_pcs=30); sc.tl.leiden(adata, resolution=0.5, flavor="igraph", n_iterations=2)
+sc.tl.umap(adata)
+adata.obsm["X_umap_unintegrated"] = adata.obsm["X_umap"].copy()
+sc.pl.umap(adata, color=["sample", "leiden"], frameon=False)
+```
+:::
+
+### Integrate
+
+::: {.panel-tabset group="language"}
+## R (Seurat)
+```r
+# Harmony (fast, embedding-level). Requires the 'harmony' package.
+merged <- IntegrateLayers(merged, method = HarmonyIntegration,
+                          orig.reduction = "pca", new.reduction = "harmony",
+                          verbose = FALSE)
+
+# Alternative: RPCA anchors, more conservative
+# merged <- IntegrateLayers(merged, method = RPCAIntegration,
+#                           orig.reduction = "pca", new.reduction = "integrated.rpca")
+
+merged <- FindNeighbors(merged, reduction = "harmony", dims = 1:30) %>%
+  FindClusters(resolution = 0.5, cluster.name = "harmony_clusters") %>%
+  RunUMAP(reduction = "harmony", dims = 1:30, reduction.name = "umap.harmony")
+
+DimPlot(merged, reduction = "umap.harmony", group.by = c("sample", "harmony_clusters"))
+DimPlot(merged, reduction = "umap.harmony", split.by = "condition", group.by = "harmony_clusters")
+
+# Rejoin layers before DE / marker finding
+merged <- JoinLayers(merged)
+```
+
+## Python (Scanpy)
+```python
+# Harmony via harmonypy
+sc.external.pp.harmony_integrate(adata, key="sample", basis="X_pca",
+                                 adjusted_basis="X_pca_harmony")
+sc.pp.neighbors(adata, use_rep="X_pca_harmony", n_pcs=30)
+sc.tl.leiden(adata, resolution=0.5, key_added="harmony_leiden", flavor="igraph", n_iterations=2)
+sc.tl.umap(adata)
+sc.pl.umap(adata, color=["sample", "harmony_leiden"], frameon=False)
+sc.pl.umap(adata, color="harmony_leiden", groups=None, frameon=False)
+
+# Alternative: scVI (GPU recommended)
+# import scvi
+# scvi.model.SCVI.setup_anndata(adata, layer="counts", batch_key="sample")
+# model = scvi.model.SCVI(adata); model.train()
+# adata.obsm["X_scVI"] = model.get_latent_representation()
+
+# Assess mixing: cells of one type should draw neighbours from all samples
+from sklearn.neighbors import NearestNeighbors
+nn = NearestNeighbors(n_neighbors=30).fit(adata.obsm["X_pca_harmony"][:, :30])
+idx = nn.kneighbors(return_distance=False)
+same_sample = (adata.obs["sample"].values[idx] == adata.obs["sample"].values[:, None]).mean(1)
+adata.obs["frac_same_sample_nn"] = same_sample
+print("Expected if perfectly mixed:", (adata.obs['sample'].value_counts(normalize=True)**2).sum())
+print("Observed mean:", same_sample.mean())
+```
+:::
+
+### Annotate the integrated object
+
+Reuse Week 4: marker dot plot plus reference labels, then assign `celltype`. Check specifically whether any cluster is composed of cells from one condition only; that is either the finding of the study or an under-corrected batch, and you must decide which from markers and from replicate consistency (does it appear in *both* patients?).
+
+### Pseudobulk differential expression
+
+::: {.panel-tabset group="language"}
+## R (Seurat + edgeR)
+```r
+library(edgeR)
+
+# Sum raw counts per sample x cell type
+pb <- AggregateExpression(merged, assays = "RNA", slot = "counts",
+                          group.by = c("celltype", "sample"), return.seurat = FALSE)$RNA
+colnames(pb)   # e.g. "CD8 T effector_ctrl1"
+
+# Test one cell type: effector CD8 T, patients vs controls
+ct   <- "CD8 T effector"
+keep <- grepl(paste0("^", ct, "_"), colnames(pb))
+y    <- DGEList(counts = pb[, keep])
+y$samples$sample    <- sub(".*_", "", colnames(y))
+y$samples$condition <- factor(sub("\\d$", "", y$samples$sample), levels = c("ctrl", "pat"))
+
+# Require enough cells per pseudobulk to be meaningful
+ncells <- table(merged$celltype, merged$sample)[ct, y$samples$sample]
+stopifnot(all(ncells >= 20))
+
+y <- y[filterByExpr(y, group = y$samples$condition), , keep.lib.sizes = FALSE]
+y <- calcNormFactors(y)
+design <- model.matrix(~ condition, data = y$samples)
+y   <- estimateDisp(y, design)
+fit <- glmQLFit(y, design)
+res <- glmQLFTest(fit, coef = "conditionpat")
+topTags(res, n = 20)
+
+# Compare with the WRONG approach to see the inflation
+wrong <- FindMarkers(subset(merged, celltype == ct), ident.1 = "pat", ident.2 = "ctrl",
+                     group.by = "condition", test.use = "wilcox")
+c(pseudobulk_sig = sum(topTags(res, n = Inf)$table$FDR < 0.05),
+  wilcoxon_sig   = sum(wrong$p_val_adj < 0.05))
+```
+
+## Python (decoupler + PyDESeq2)
+```python
+# pip install decoupler pydeseq2
+import decoupler as dc
+from pydeseq2.dds import DeseqDataSet
+from pydeseq2.ds import DeseqStats
+
+pdata = dc.pp.pseudobulk(
+    adata, sample_col="sample", groups_col="celltype",
+    layer="counts", mode="sum", min_cells=20, min_counts=1000
+)
+pdata.obs["condition"] = pdata.obs["sample"].str.replace(r"\d$", "", regex=True)
+
+ct  = "CD8 T effector"
+sub = pdata[pdata.obs["celltype"] == ct].copy()
+dc.pp.filter_by_expr(sub, group="condition", min_count=10, min_total_count=15)
+
+dds = DeseqDataSet(adata=sub, design="~condition", refit_cooks=True, quiet=True)
+dds.deseq2()
+stat = DeseqStats(dds, contrast=["condition", "pat", "ctrl"], quiet=True)
+stat.summary()
+res = stat.results_df.sort_values("padj")
+res.head(20)
+
+# The WRONG way, for comparison
+cells = adata[adata.obs["celltype"] == ct].copy()
+sc.tl.rank_genes_groups(cells, "condition", groups=["pat"], reference="ctrl",
+                        method="wilcoxon", use_raw=True)
+wrong = sc.get.rank_genes_groups_df(cells, "pat")
+print("pseudobulk sig:", (res["padj"] < 0.05).sum(),
+      "| wilcoxon sig:", (wrong["pvals_adj"] < 0.05).sum())
+```
+:::
+
+### Compositional analysis
+
+::: {.panel-tabset group="language"}
+## R (speckle / propeller)
+```r
+# BiocManager::install("speckle")
+library(speckle)
+props <- propeller(clusters = merged$celltype, sample = merged$sample,
+                   group = merged$condition, transform = "logit")
+props
+
+plotCellTypeProps(clusters = merged$celltype, sample = merged$sample) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Python (scCODA via pertpy)
+```python
+# pip install pertpy   (scCODA is bundled)
+import pertpy as pt
+
+sccoda = pt.tl.Sccoda()
+cdata  = sccoda.load(adata, type="cell_level", generate_sample_level=True,
+                     cell_type_identifier="celltype", sample_identifier="sample",
+                     covariate_obs=["condition"])
+cdata  = sccoda.prepare(cdata, formula="condition", reference_cell_type="automatic")
+sccoda.run_nuts(cdata, rng_key=0)
+sccoda.summary(cdata)
+sccoda.credible_effects(cdata)
+
+# Simple per-sample proportion plot
+prop = pd.crosstab(adata.obs["sample"], adata.obs["celltype"], normalize="index")
+prop.plot.bar(stacked=True, figsize=(6, 4), colormap="tab20").legend(bbox_to_anchor=(1, 1))
+```
+:::
+
+### Track clonotypes across samples
+
+::: {.panel-tabset group="language"}
+## R (scRepertoire)
+```r
+library(scRepertoire)
+contig_list <- list(
+  ctrl1 = read.csv("data/raw/ctrl1/filtered_contig_annotations.csv"),
+  pat1_blood  = read.csv("data/raw/pat1_blood/filtered_contig_annotations.csv"),
+  pat1_tumour = read.csv("data/raw/pat1_tumour/filtered_contig_annotations.csv")
+)
+combined <- combineTCR(contig_list, samples = names(contig_list))
+
+# Overlap between samples (within-patient overlap is the interesting one)
+clonalOverlap(combined, cloneCall = "strict", method = "morisita")
+
+# Alluvial tracking of the top clones between blood and tumour
+clonalCompare(combined, top.clones = 10, samples = c("pat1_blood", "pat1_tumour"),
+              cloneCall = "aa", graph = "alluvial")
+
+# Scatter: clone frequency in blood vs tumour
+clonalScatter(combined, cloneCall = "strict", x.axis = "pat1_blood", y.axis = "pat1_tumour",
+              graph = "proportion")
+
+# Attach to the integrated object and ask which phenotype tumour-expanded clones
+# have in blood
+merged <- combineExpression(combined, merged, cloneCall = "strict", group.by = "sample")
+shared <- intersect(combined$pat1_blood$CTstrict, combined$pat1_tumour$CTstrict)
+merged$in_tumour_and_blood <- merged$CTstrict %in% shared
+table(merged$celltype[merged$in_tumour_and_blood & merged$sample == "pat1_blood"])
+```
+
+## Python (scirpy)
+```python
+import scirpy as ir, mudata as mu
+airr = ir.io.read_10x_vdj  # for each sample, read + concat with matching obs index
+# ... assume mdata built as in Week 5, with obs "sample" and "clone_id" over all samples
+
+# Repertoire overlap between samples
+df, dist, link = ir.tl.repertoire_overlap(mdata, groupby="sample", target_col="clone_id",
+                                          inplace=False)
+ir.pl.repertoire_overlap(mdata, groupby="sample", heatmap_cats=["condition"])
+
+# Which clonotypes are shared between blood and tumour of the same patient?
+ct = pd.crosstab(mdata.obs["airr:clone_id"], mdata.obs["gex:sample"])
+shared = ct.index[(ct["pat1_blood"] > 0) & (ct["pat1_tumour"] > 0)]
+print(len(shared), "clonotypes shared between blood and tumour")
+
+# Phenotype of shared clones in blood versus tumour
+sub = mdata.obs[mdata.obs["airr:clone_id"].isin(shared)]
+pd.crosstab(sub["gex:sample"], sub["gex:celltype"], normalize="index").round(2)
+
+# Clonotype network coloured by sample: nodes spanning samples are shared clones
+ir.tl.clonotype_network(mdata, min_cells=2, clonotype_key="clone_id")
+ir.pl.clonotype_network(mdata, color="gex:sample", panel_size=(7, 7))
+```
+:::
+
+## Pitfalls
+
+::: {.pitfall}
+- **Testing DE on integrated or scaled values.** Integration corrects an embedding, not the biology. Always go back to raw counts for pseudobulk.
+- **Cells as replicates.** Three patients are three replicates, whatever the cell count. If you have n = 1 per condition, you can describe but not test.
+- **Integrating away the finding.** A population present only in disease may be erased by CCA. Try a conservative method and confirm the population is absent in *every* control.
+- **Confounded design.** If all patients were processed on Monday and all controls on Tuesday, no method can rescue the comparison. Say so in the paper.
+- **Composition tests on pooled counts.** Chi-squared on the total cell table ignores donor variability.
+- **Cross-donor clonotype overlap as "shared response".** Different donors have different repertoires; overlap is mostly public/invariant clones.
+:::
+
+## Capstone project
+
+Choose a public multi-sample dataset with paired GEX and TCR (suggestions in the [Setup appendix](../appendix/setup.qmd)) or use your own. Produce a reproducible report (Quarto, Rmarkdown or Jupyter) that:
+
+1. **QC** — states thresholds, cell counts before/after, doublet rates per lane
+2. **Processing** — normalization method, HVG count with V(D)J exclusion, number of PCs with justification, integration method and an assessment of mixing
+3. **Annotation** — clusters at a stated resolution, a marker dot plot, agreement with a reference, and a cell-type UMAP; T cells subclustered
+4. **Repertoire** — clonotype definition stated, fraction of T cells assigned, expansion by cluster, depth-matched diversity, at least one clone-phenotype result
+5. **Comparison** — one pseudobulk DE result and one compositional result across condition, each with the number of biological replicates stated; one clonotype-tracking result if samples are paired
+6. **One figure you would put in a paper**, with a legend that would let a reader reproduce it
+7. **A limitations paragraph**: confounding, replicate number, and which of your conclusions is a hypothesis versus a supported claim
+
+Presentations are 10 minutes plus 5 for questions. You will be assessed on the defensibility of your choices, not on the novelty of your findings.
+
+| Criterion | Weight |
+|---|---|
+| Choices are stated and justified (thresholds, resolution, clonotype rule, DE method) | 35% |
+| Correct handling of replication (pseudobulk, downsampled diversity, sample-level composition) | 25% |
+| Annotation is supported by markers and reconciled with a reference | 20% |
+| Figures are readable and legends are complete | 10% |
+| Limitations are honest and specific | 10% |

@@ -1,0 +1,45 @@
+# Renders the Quarto book and publishes it to the gh-pages branch on every
+# push to main. Because the book's code blocks are display-only, this needs
+# nothing but Quarto: no R, no Python, no data download.
+#
+# One-time setup (see README.md, or run setup-github.sh):
+#   1. Create an empty gh-pages branch and push it.
+#   2. Repository Settings -> Pages -> Source: "Deploy from a branch",
+#      Branch: gh-pages, folder: / (root).
+#   3. Repository Settings -> Actions -> General -> Workflow permissions:
+#      "Read and write permissions".
+
+name: Publish course site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render and publish to gh-pages
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+          render: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

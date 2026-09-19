@@ -1,0 +1,362 @@
+# TCR Repertoire Analysis {#sec-tcr}
+
+::: {.objectives}
+**Learning objectives**
+
+- Read Cell Ranger V(D)J output and filter contigs to productive, high-confidence chains
+- Define clonotypes with an explicit, defensible rule and understand how each choice changes the answer
+- Quantify clonal expansion and repertoire diversity and know what each index is sensitive to
+- Link clonotypes to transcriptional phenotype: which clusters do expanded clones occupy, and do sister cells of a clone share a state?
+- Group similar TCRs into specificity clusters and query public databases
+:::
+
+## Concepts
+
+### V(D)J recombination, briefly
+
+Each αβ T cell expresses one TCR made of a **TRA** chain (V–J recombination) and a **TRB** chain (V–D–J recombination). The junctional region, **CDR3**, contains the V/J (and D) ends plus non-templated nucleotides added by TdT; it is hypervariable and is the main determinant of antigen specificity, so it is what we use to identify a clone. Because the two alleles rearrange independently and allelic exclusion is incomplete for TRA, roughly 10–30% of T cells carry **two productive TRA** chains (one of which may not pair or be surface-expressed) and ~1% carry two TRB.
+
+```{mermaid}
+%%| fig-cap: "A TRB transcript. Cell Ranger assembles the full contig; we mostly use CDR3 plus V and J gene calls."
+flowchart LR
+  L[Leader] --> V["TRBV\n(~50 genes)"] --> N1[N] --> D["TRBD\n(2 genes)"] --> N2[N] --> J["TRBJ\n(13 genes)"] --> C["TRBC1/2"]
+  style N1 fill:#f4a261,color:#000
+  style N2 fill:#f4a261,color:#000
+```
+
+### What Cell Ranger gives you
+
+`cellranger vdj` (or `multi`) assembles contigs per cell barcode and annotates them. The key file is **`filtered_contig_annotations.csv`**, one row per contig (chain), with columns:
+
+| Column | Meaning |
+|---|---|
+| `barcode` | Cell barcode; matches GEX barcodes when run through `multi` on the same lane |
+| `chain` | `TRA`, `TRB` (also `TRD`, `TRG`, or `Multi` for ambiguous) |
+| `v_gene`, `d_gene`, `j_gene`, `c_gene` | Gene segment calls |
+| `cdr3`, `cdr3_nt` | CDR3 amino-acid and nucleotide sequence |
+| `productive` | In-frame, no stop codon, complete V–J |
+| `high_confidence`, `full_length`, `is_cell` | Assembly quality flags |
+| `umis`, `reads` | Support for the contig |
+| `raw_clonotype_id` | Cell Ranger's own clonotype (paired nucleotide CDR3) |
+
+A typical 5′ run recovers a productive TRB in 70–90% of T cells and a productive TRA in 60–80%; full αβ pairing in 50–70%. Missing chains are dropout, not evidence of a γδ or CD3-negative cell.
+
+### Defining a clonotype
+
+::: {.concept}
+**There is no single definition of a clonotype.** A clonotype is a set of cells you decide to treat as descendants of one naive T cell. Common rules, from strictest to loosest:
+
+1. **Paired CDR3 nucleotide** (TRA nt + TRB nt): the closest to true clonal identity. Cells missing a chain cannot be assigned, so ~30% of cells are lost.
+2. **Paired CDR3 amino acid**: collapses convergent recombinations that produce the same protein. Slightly looser; same dropout problem.
+3. **TRB CDR3 nt + V gene** (β only): maximises the number of assignable cells; risks merging distinct clones that share a β chain (rare for private clones, common for invariant populations).
+4. **TRB CDR3 aa**: loosest; will merge public clones with different nucleotide origins.
+
+State your rule in every figure legend. For expansion analysis, use paired-chain definitions and report the fraction of cells that were assignable. For counting clonotypes across samples where dropout differs, consider β-only for consistency.
+:::
+
+::: {.immuno}
+**Invariant and semi-invariant T cells.** MAIT cells almost all use `TRAV1-2`–`TRAJ33/12/20` with a CDR3α of canonical length; iNKT cells use `TRAV10`–`TRAJ18`. By a TRA-based definition these would appear as a massively "expanded" clone. Always check whether a large clonotype is an invariant population before calling it an expansion. Conversely, your Week 4 MAIT cluster can now be validated: >90% of its cells should carry `TRAV1-2`.
+:::
+
+### Quantifying expansion and diversity
+
+**Clonal expansion** is the observation that a clonotype occupies more than one cell. In healthy blood most clonotypes are singletons; a few (often cytotoxic CD8 TEMRA, or CMV-specific) are large. Convention is to bin clone sizes (1, 2–5, 6–20, 21–100, >100) or to use proportion of repertoire.
+
+**Diversity indices** summarise the clone-size distribution in one number:
+
+| Index | What it emphasises | Sensitive to |
+|---|---|---|
+| Richness (number of unique clonotypes) | How many clones | Sequencing depth and cell number, strongly |
+| Shannon entropy | Both richness and evenness | Cell number, moderately |
+| Simpson / inverse Simpson | Dominance of large clones | Least sensitive to rare clones |
+| Gini coefficient | Inequality of clone sizes (0 = all equal, 1 = one clone) | Good for expansion, independent of richness |
+| Chao1 | Estimated true richness including unseen clones | Extrapolation assumptions |
+| D50 | Fraction of clonotypes needed to make up 50% of cells | Intuitive; depends on cell number |
+
+::: {.pitfall}
+**Diversity depends on how many cells you sequenced.** A sample with 5,000 T cells will always show more clonotypes than one with 500. Compare samples only after **downsampling to equal cell numbers**, or use indices designed to be depth-robust (inverse Simpson, Gini), and report the cell counts.
+:::
+
+### From sequence to specificity
+
+Clonotype identity is exact; **specificity** is fuzzy. TCRs that differ by one or two CDR3 residues often recognise the same peptide–MHC. Methods such as TCRdist, GLIPH2 and scirpy's `alignment` distance group TCRs into **specificity clusters** by sequence similarity, letting you ask whether several distinct clones are converging on one antigen. Databases (**VDJdb**, **McPAS-TCR**, **IEDB**) list TCRs with known specificity; you will find matches for common viral epitopes (CMV pp65, EBV BMLF1, influenza M1) in most donors.
+
+## Hands-on
+
+### Load contigs and filter
+
+::: {.panel-tabset group="language"}
+## R (scRepertoire)
+```r
+library(Seurat)
+library(scRepertoire)   # v2: BiocManager::install("scRepertoire")
+library(dplyr)
+library(ggplot2)
+
+tcells <- readRDS("data/processed/04_tcells.rds")
+contigs <- read.csv("data/raw/filtered_contig_annotations.csv")
+
+table(contigs$chain, contigs$productive)
+
+# combineTCR: filters to productive TRA/TRB, keeps up to 2 TRA + 1 TRB per cell,
+# and builds per-cell clonotype strings (CTgene, CTnt, CTaa, CTstrict)
+combined <- combineTCR(
+  list(PBMC = contigs),
+  samples = "PBMC",
+  removeNA = FALSE,           # keep single-chain cells; drop them later if you wish
+  removeMulti = FALSE,        # TRUE drops cells with > 2 chains of one type (likely doublets)
+  filterMultimapper = TRUE
+)
+head(combined$PBMC[, c("barcode", "TCR1", "cdr3_aa1", "TCR2", "cdr3_aa2", "CTstrict")])
+```
+
+## Python (scirpy)
+```python
+import scanpy as sc
+import scirpy as ir
+import mudata as mu
+import pandas as pd
+import numpy as np
+
+tcells = sc.read_h5ad("data/processed/04_tcells.h5ad")
+airr   = ir.io.read_10x_vdj("data/raw/filtered_contig_annotations.csv")
+
+# Build a MuData with paired gex + airr modalities (scirpy >= 0.13 convention)
+mdata = mu.MuData({"gex": tcells, "airr": airr})
+mdata
+
+# Chain indexing picks the most-supported productive TRA/TRB per cell and
+# records secondary chains; chain_qc classifies receptor types
+ir.pp.index_chains(mdata)
+ir.tl.chain_qc(mdata)
+
+mdata.obs["airr:chain_pairing"].value_counts()
+ir.pl.group_abundance(mdata, groupby="airr:receptor_subtype", target_col="gex:celltype")
+```
+:::
+
+### Define clonotypes and attach to the expression object
+
+::: {.panel-tabset group="language"}
+## R (scRepertoire)
+```r
+# Attach TCR to Seurat. cloneCall options: "gene", "nt", "aa", "strict" (gene+nt)
+# Barcodes must match: scRepertoire prefixes with sample name, so strip that
+combined$PBMC$barcode <- sub("^PBMC_", "", combined$PBMC$barcode)
+
+tcells <- combineExpression(
+  combined, tcells,
+  cloneCall  = "strict",
+  group.by   = "sample",
+  proportion = FALSE,
+  cloneSize  = c(Single = 1, Small = 5, Medium = 20, Large = 100, Hyperexpanded = 500)
+)
+
+# What fraction of T cells received a TCR?
+mean(!is.na(tcells$CTstrict))
+table(tcells$cloneSize, useNA = "ifany")
+
+# Validate the MAIT cluster
+tcells$is_TRAV1_2 <- grepl("TRAV1-2", tcells$CTgene)
+prop.table(table(tcells$seurat_clusters, tcells$is_TRAV1_2), margin = 1)
+```
+
+## Python (scirpy)
+```python
+# Distance between receptors; "identity" = exact match on CDR3 nt
+ir.pp.ir_dist(mdata, metric="identity", sequence="nt")
+
+# Clonotype = identical CDR3 nt on both chains plus same V genes (strict);
+# receptor_arms="all" requires all present chains to match, dual_ir="primary_only"
+ir.tl.define_clonotypes(
+    mdata, receptor_arms="all", dual_ir="primary_only",
+    same_v_gene=True, key_added="clone_id"
+)
+
+ir.tl.clonal_expansion(mdata, target_col="clone_id", key_added="clonal_expansion")
+mdata.obs["airr:clonal_expansion"].value_counts()
+
+# Push AIRR-derived columns into the gex modality for plotting
+mu.pp.intersect_obs(mdata)   # optional: keep only cells with both modalities
+mdata.obs["gex:clone_id"]          = mdata.obs["airr:clone_id"]
+mdata.obs["gex:clonal_expansion"]  = mdata.obs["airr:clonal_expansion"]
+
+# Validate MAIT cluster by TRAV1-2 usage
+v_alpha = ir.get.airr(mdata, "v_call", chain="VJ_1")
+mdata.obs["gex:is_TRAV1_2"] = (v_alpha == "TRAV1-2").values
+pd.crosstab(mdata.obs["gex:t_leiden"], mdata.obs["gex:is_TRAV1_2"], normalize="index")
+```
+:::
+
+### Expansion and diversity
+
+::: {.panel-tabset group="language"}
+## R (scRepertoire)
+```r
+# Repertoire-level summaries operate on the combined list
+clonalQuant(combined,     cloneCall = "strict", chain = "both", scale = TRUE)
+clonalAbundance(combined, cloneCall = "strict", scale = FALSE)
+clonalLength(combined,    cloneCall = "aa", chain = "TRB")
+clonalHomeostasis(combined, cloneCall = "strict",
+                  cloneSize = c(Rare = 1e-4, Small = 1e-3, Medium = 1e-2, Large = 1e-1, Hyperexpanded = 1))
+
+# Diversity with bootstrapped downsampling to the smallest group
+clonalDiversity(combined, cloneCall = "strict", n.boots = 100)
+
+# Per-phenotype diversity: split the Seurat object by cluster
+by_cluster <- expression2List(tcells, split.by = "seurat_clusters")
+clonalDiversity(by_cluster, cloneCall = "strict", metrics = c("shannon", "inv.simpson", "gini.coeff"))
+```
+
+## Python (scirpy)
+```python
+# Clone-size distribution per T cell cluster
+ir.pl.clonal_expansion(mdata, target_col="clone_id", groupby="gex:t_leiden",
+                       clip_at=4, normalize=True)
+
+# Diversity per cluster; try metric="normalized_shannon_entropy" or "D50"
+ir.pl.alpha_diversity(mdata, groupby="gex:t_leiden", target_col="clone_id",
+                      metric="normalized_shannon_entropy")
+
+# Depth-matched comparison: subsample each cluster to the smallest n before scoring
+def downsampled_diversity(obs, group_col, clone_col, n=None, seed=0):
+    rng = np.random.default_rng(seed)
+    n = n or obs.groupby(group_col).size().min()
+    out = {}
+    for g, df in obs.groupby(group_col):
+        sub = df.sample(n, random_state=seed) if len(df) > n else df
+        counts = sub[clone_col].value_counts()
+        p = counts / counts.sum()
+        out[g] = -(p * np.log(p)).sum()
+    return pd.Series(out, name="shannon")
+
+downsampled_diversity(mdata.obs.dropna(subset=["airr:clone_id"]),
+                      "gex:t_leiden", "airr:clone_id")
+
+# Most expanded clonotypes and their gene usage
+ir.pl.group_abundance(mdata, groupby="airr:clone_id", target_col="gex:t_leiden", max_cols=15)
+ir.pl.vdj_usage(mdata, full_combination=False, max_segments=None, max_ribbons=30)
+```
+:::
+
+### Clonotype meets phenotype
+
+The central question of paired GEX + TCR data: **where do expanded clones live, and do the cells of one clone share a state?**
+
+::: {.panel-tabset group="language"}
+## R (scRepertoire)
+```r
+# Clone size on the UMAP
+DimPlot(tcells, group.by = "cloneSize", order = TRUE) +
+  scale_color_manual(values = rev(colorblind_vector()[c(1,3,4,5,7)]), na.value = "grey90")
+
+# Contour overlay of expanded clones
+clonalOverlay(tcells, reduction = "umap", cut.category = "clonalFrequency",
+              cutpoint = 5, bins = 10, facet.by = NULL)
+
+# Which clusters are occupied by expanded vs singleton clones?
+clonalOccupy(tcells, x.axis = "seurat_clusters", proportion = TRUE)
+
+# Do sister cells of one clone share a cluster? Highlight the top 5 clones.
+top_clones <- names(sort(table(tcells$CTstrict), decreasing = TRUE))[1:5]
+tcells <- highlightClones(tcells, cloneCall = "strict", sequence = top_clones)
+DimPlot(tcells, group.by = "highlight", order = TRUE) + NoLegend()
+
+# Clone-sharing between clusters (a clone whose cells span two clusters connects them)
+clonalNetwork(tcells, reduction = "umap", group.by = "seurat_clusters",
+              filter.clones = NULL, filter.identity = NULL, cloneCall = "strict")
+
+# STARTRAC-style: transitional index measures clones spanning multiple states
+StartracDiversity(tcells, type = "seurat_clusters", group.by = "sample")
+
+saveRDS(tcells, "data/processed/05_tcells_tcr.rds")
+```
+
+## Python (scirpy)
+```python
+# Clone size on the UMAP
+sc.pl.umap(mdata["gex"], color="clonal_expansion", frameon=False)
+
+# Occupancy: clone-size composition of each cluster
+ir.pl.clonal_expansion(mdata, target_col="clone_id", groupby="gex:t_leiden", normalize=True)
+
+# Highlight the five largest clonotypes
+top = mdata.obs["airr:clone_id"].value_counts().head(5).index
+mdata.obs["gex:top_clone"] = mdata.obs["airr:clone_id"].where(
+    mdata.obs["airr:clone_id"].isin(top), other=np.nan)
+sc.pl.umap(mdata["gex"], color="top_clone", frameon=False, na_color="lightgrey")
+
+# Cluster distribution of each top clone: do sister cells share a state?
+pd.crosstab(mdata.obs["airr:clone_id"], mdata.obs["gex:t_leiden"]).loc[top]
+
+# Clonotype network: nodes = clonotypes, size = cells, colour = dominant cluster
+ir.tl.clonotype_network(mdata, min_cells=2, clonotype_key="clone_id")
+ir.pl.clonotype_network(mdata, color="gex:t_leiden", panel_size=(7, 7), base_size=10)
+
+mdata.write("data/processed/05_tcells_tcr.h5mu")
+```
+:::
+
+### Specificity clusters and public databases
+
+::: {.panel-tabset group="language"}
+## R (scRepertoire)
+```r
+# Cluster TRB CDR3s by sequence similarity (edit distance) into "clone clusters"
+combined <- clonalCluster(combined, chain = "TRB", sequence = "aa", threshold = 0.85)
+head(combined$PBMC[, c("cdr3_aa2", "TRB_cluster")])
+
+# Query VDJdb (download the latest export from https://vdjdb.cdr3.net)
+vdjdb <- read.delim("data/raw/vdjdb.slim.txt")
+vdjdb <- vdjdb[vdjdb$species == "HomoSapiens" & vdjdb$gene == "TRB", ]
+matches <- inner_join(
+  distinct(combined$PBMC, cdr3_aa2),
+  vdjdb[, c("cdr3", "antigen.epitope", "antigen.species")],
+  by = c("cdr3_aa2" = "cdr3")
+)
+count(matches, antigen.species, sort = TRUE)
+```
+
+## Python (scirpy)
+```python
+# TCRdist-like alignment distance on CDR3 aa; group receptors within cutoff
+ir.pp.ir_dist(mdata, metric="alignment", sequence="aa", cutoff=15)
+ir.tl.define_clonotype_clusters(
+    mdata, sequence="aa", metric="alignment",
+    receptor_arms="all", dual_ir="any", key_added="cc_aa_alignment"
+)
+ir.tl.clonotype_network(mdata, min_cells=3, sequence="aa", metric="alignment",
+                        clonotype_key="cc_aa_alignment")
+ir.pl.clonotype_network(mdata, color="gex:t_leiden", label_fontsize=9, panel_size=(7, 7))
+
+# Query VDJdb (scirpy can download and format it)
+vdjdb = ir.datasets.vdjdb()
+ir.pp.ir_dist(mdata, vdjdb, metric="identity", sequence="aa")
+ir.tl.ir_query(mdata, vdjdb, metric="identity", sequence="aa",
+               receptor_arms="any", dual_ir="any")
+ir.tl.ir_query_annotate(mdata, vdjdb, metric="identity", sequence="aa",
+                        include_ref_cols=["antigen.species", "antigen.epitope"],
+                        strategy="most-frequent")
+mdata.obs["airr:antigen.species"].value_counts()
+```
+:::
+
+## Pitfalls
+
+::: {.pitfall}
+- **Not stating the clonotype definition.** Numbers of clonotypes and expansion levels change substantially between nt-paired and aa-β-only rules.
+- **Comparing diversity across samples of different size.** Always downsample or use depth-robust indices.
+- **Calling MAIT / iNKT an expanded clone.** Check `TRAV1-2` / `TRAV10` before interpreting a large "clone".
+- **Treating cells with two TRB as dual-TCR cells.** Most are doublets; cross-check with your doublet scores.
+- **Treating missing chains as biology.** A TRB-only cell is a dropout, not a pre-selection thymocyte.
+- **Over-reading database hits.** A CDR3β match to a CMV epitope in VDJdb suggests, not proves, CMV specificity; α chain and HLA context matter.
+- **Ignoring barcode conventions.** Cell Ranger suffixes (`-1`), scRepertoire prefixes and multi-lane merging all change barcode strings. Check the overlap between GEX and TCR barcodes before attaching.
+:::
+
+## Exercises
+
+1. Define clonotypes four ways (paired nt, paired aa, β nt + V, β aa). How many clonotypes and how many assignable cells does each give? Which definition would you use to compare two patients, and why?
+2. Which T cell cluster has the lowest diversity after downsampling? Which markers does it express? Is this the answer you expected from immunology?
+3. Take the three largest clonotypes. For each, list the clusters its cells occupy. Are sister cells phenotypically coherent, or does one clone span naive-like and effector states?
+4. What fraction of your MAIT cluster carries `TRAV1-2`? What fraction of `TRAV1-2` cells are *outside* the MAIT cluster, and what are they?
+5. *(Stretch)* Query VDJdb. Which viral specificities appear? Are matched clonotypes more expanded than the rest of the repertoire?

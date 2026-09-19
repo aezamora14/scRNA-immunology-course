@@ -1,0 +1,50 @@
+project:
+  type: book
+  output-dir: _site
+
+book:
+  title: "Single-Cell RNA-seq and TCR-seq for Immunologists"
+  subtitle: "A six-week hands-on course in R (Seurat) and Python (Scanpy)"
+  author: "Course Instructor"
+  date: today
+  repo-url: https://github.com/aezamora14/scRNA-immunology-course
+  repo-actions: [edit, issue]
+  sidebar:
+    style: docked
+    search: true
+  chapters:
+    - index.qmd
+    - part: "Weekly Sessions"
+      chapters:
+        - chapters/01-from-cells-to-counts.qmd
+        - chapters/02-normalization-and-pca.qmd
+        - chapters/03-neighbors-clustering-umap.qmd
+        - chapters/04-annotation.qmd
+        - chapters/05-tcr-repertoire.qmd
+        - chapters/06-multisample-and-capstone.qmd
+    - part: "Appendices"
+      chapters:
+        - appendix/setup.qmd
+        - appendix/glossary.qmd
+        - appendix/further-reading.qmd
+
+format:
+  html:
+    theme:
+      light: [cosmo, styles.scss]
+      dark: [darkly, styles.scss]
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-copy: true
+    code-overflow: wrap
+    code-line-numbers: false
+    link-external-newwindow: true
+    fig-cap-location: bottom
+
+# Code blocks in this book are display-only (```r / ```python), so the site
+# builds on GitHub Actions with nothing but Quarto installed. Students run the
+# code locally. See README.md for how to switch to executed, cached chapters.
+execute:
+  eval: false
+  freeze: auto
