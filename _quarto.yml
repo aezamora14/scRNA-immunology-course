@@ -5,7 +5,7 @@ project:
 book:
   title: "Single-Cell RNA-seq and TCR-seq for Immunologists"
   subtitle: "A six-week hands-on course in R (Seurat) and Python (Scanpy)"
-  author: "Course Instructor"
+  author: "Anthony E. Zamora"
   date: today
   repo-url: https://github.com/aezamora14/scRNA-immunology-course
   repo-actions: [edit, issue]
